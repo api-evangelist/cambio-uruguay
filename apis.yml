@@ -1,0 +1,38 @@
+name: Cambio Uruguay
+description: Uruguayan currency exchange rates API comparing rates across exchange houses. Public JSON with no key
+  or registration, plus a hosted Streamable HTTP MCP server.
+url: https://raw.githubusercontent.com/api-evangelist/cambio-uruguay/refs/heads/main/apis.yml
+created: '2026-09-07'
+modified: '2026-09-07'
+specificationVersion: '0.21'
+tags:
+- Currency
+- Exchange Rates
+- Finance
+- Uruguay
+- Latin America
+apis:
+- name: Cambio Uruguay API
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Currency
+  - Exchange Rates
+  properties:
+  - type: OpenAPI
+    url: https://api.cambio-uruguay.com/api-docs.json
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: MCPServer
+    url: https://mcp.cambio-uruguay.com/mcp
+maintainers:
+- FN: Cambio Uruguay
+x-source:
+  via: api-search/inbox#23 (eduair94); MCP handshake completed live
+  fetched: '2026-09-07'
+  note: Every pointer probed before writing; controls discriminate.
+common:
+- type: Website
+  url: https://cambio-uruguay.com
