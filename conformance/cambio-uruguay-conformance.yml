@@ -1,0 +1,43 @@
+generated: '2026-09-07'
+method: derived
+source: openapi/cambio-uruguay-openapi.json + live probes + docs sweep, 2026-09-07
+summary: >-
+  Honest conformance picture for a small keyless public API. Real conformances: OpenAPI 3.0
+  contract, MCP 2025-06-18 protocol (verified by live handshake), RFC 9116 security.txt
+  (served, with an expired Expires), and RFC 9116-adjacent caveats recorded. Explicit
+  non-conformances recorded so nothing scores by silence: no OAuth2/OIDC (keyless by
+  design), no RFC 9457 problem+json, no JSON:API, no pagination standard, no idempotency
+  mechanism (na — read-only surface). No financial-sector domain standard (ISO 20022, FDX,
+  Open Banking) applies to a rate-comparison read API and none is claimed by the provider —
+  reward-only, so none is asserted.
+conformance:
+- id: openapi-3.0
+  conforms: true
+  evidence: https://api.cambio-uruguay.com/api-docs.json — openapi 3.0.0, 54 operations, parsed 2026-09-07
+- id: mcp-2025-06-18
+  conforms: true
+  evidence: live initialize handshake at https://mcp.cambio-uruguay.com/mcp returned protocolVersion 2025-06-18 with tools + prompts capabilities, 2026-09-07
+- id: rfc9116-security-txt
+  conforms: true
+  evidence: >-
+    https://cambio-uruguay.com/.well-known/security.txt served (200) with Contact, Expires,
+    Preferred-Languages, Canonical, Policy. Caveats: Expires 2026-06-09 already past at
+    probe time; Policy and Acknowledgments URLs 404; served as application/json.
+- id: oauth2
+  conforms: false
+  evidence: no securitySchemes in the OpenAPI; API and MCP server answer anonymously by design
+- id: oidc
+  conforms: false
+  evidence: /.well-known/openid-configuration 404 on all four hosts, 2026-09-07
+- id: rfc9457
+  conforms: false
+  evidence: errors use a custom {error} envelope, not application/problem+json (see errors/cambio-uruguay-problem-types.yml)
+- id: json-api
+  conforms: false
+  evidence: plain JSON arrays/objects; no JSON:API media type or document structure
+- id: pagination
+  conforms: false
+  evidence: no pagination mechanism in any of the 54 operations; full result sets returned
+- id: idempotency
+  conforms: null
+  evidence: not applicable — no persistent write surface (see conventions/cambio-uruguay-conventions.yml idempotency.coverage na)

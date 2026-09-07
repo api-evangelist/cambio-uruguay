@@ -1,0 +1,26 @@
+generated: '2026-09-07'
+method: searched
+source: registry.npmjs.org + github.com/eduair94/cambio-uruguay (mcp/ subfolder)
+summary: >-
+  One first-party package: the MCP server, published to npm as cambio-uruguay-mcp with an
+  npx-runnable bin. No REST client SDKs are published on npm, PyPI, RubyGems, crates.io,
+  NuGet, Maven Central, pkg.go.dev or Packagist — the API is keyless public JSON and the
+  docs point integrators straight at the HTTP endpoints. pypi.org/pypi/cambio-uruguay/json
+  returned 404 on 2026-09-07.
+packages:
+- name: cambio-uruguay-mcp
+  registry: npm
+  url: https://www.npmjs.com/package/cambio-uruguay-mcp
+  repository: https://github.com/eduair94/cambio-uruguay/tree/main/mcp
+  official: true
+  language: TypeScript
+  kind: mcp-server
+  version: 0.1.0
+  published: '2026-06-17'
+  license: MIT
+  bin: cambio-uruguay-mcp
+  install: npx -y cambio-uruguay-mcp
+  note: >-
+    Registry metadata read from registry.npmjs.org/cambio-uruguay-mcp on 2026-09-07
+    (dist-tags.latest 0.1.0, published 2026-06-17). The repo's mcp/server.json declares
+    0.1.1, which had not reached the npm registry at probe time.

@@ -1,0 +1,53 @@
+generated: '2026-09-07'
+method: derived
+source: openapi/cambio-uruguay-openapi.json components.schemas + path parameter structure, 2026-09-07
+summary: >-
+  Small read-model centered on the exchange house (origin). ExchangeData rows key on
+  origin + code + type; evolution series and branch locations both hang off the same
+  origin identifier; ParametersResponse is the enumeration authority for every reference
+  code in the system. No $ref graph exists in the spec — relationships below are derived
+  from shared identifier fields (origin, code, type) and the path hierarchy
+  (/exchange/{origin}/{code}, /evolution/{origin}/{code}/{type}, /exchanges/{origin}/{location}).
+entities:
+- name: ExchangeData
+  description: One quote — an exchange house's buy/sell for a currency at a point in time.
+  identifier_fields: [origin, code, type]
+- name: Location
+  description: A branch of an exchange house — address, coordinates, department, city.
+- name: CurrencyEvolution
+  description: A dated point in a historical buy/sell/avg series for one origin + currency.
+- name: ParametersResponse
+  description: The reference enumerations — valid origins, currency codes, quote types, locations.
+- name: GeocodeResponse
+  description: Forward-geocoding result used to resolve nearest branches.
+- name: AIInsightResponse
+  description: AI-generated market analysis text with language and cache flags.
+relationships:
+- from: ExchangeData
+  to: ParametersResponse
+  kind: belongs_to
+  via: origin (must appear in ParametersResponse.origins)
+- from: ExchangeData
+  to: ParametersResponse
+  kind: belongs_to
+  via: code (must appear in ParametersResponse.currencies)
+- from: ExchangeData
+  to: ParametersResponse
+  kind: belongs_to
+  via: type (must appear in ParametersResponse.types)
+- from: ExchangeData
+  to: CurrencyEvolution
+  kind: has_many
+  via: origin + code (GET /evolution/{origin}/{code})
+- from: ExchangeData
+  to: Location
+  kind: has_many
+  via: origin (GET /exchanges/{origin} and /exchanges/{origin}/{location})
+- from: Location
+  to: GeocodeResponse
+  kind: belongs_to
+  via: latitude/longitude resolved through POST /geocoding (distance computation on GET /distances)
+id_conventions:
+  origin: snake_case slug of the exchange house (e.g. brou, cambio_argentino, la_favorita)
+  code: ISO 4217 currency code, plus XAU for gold
+  type: quote channel qualifier (BILLETE, CABLE, TRANSFERENCIA, eBROU, INTERBANCARIO); empty string for the default quote

@@ -1,0 +1,30 @@
+generated: '2026-09-07'
+method: derived
+source: openapi/cambio-uruguay-openapi.json + live probes of https://api.cambio-uruguay.com and https://mcp.cambio-uruguay.com/mcp, 2026-09-07
+summary: >-
+  No authentication, by design. The OpenAPI declares no securitySchemes and no security
+  requirements; the API answered unauthenticated GETs live (200 on / and
+  /evolution/brou/USD, 2026-09-07); the MCP server completed initialize + tools/list with
+  no credentials; and the site's llms.txt describes the service as a free public tool with
+  no key or registration. This is a genuinely keyless public API, not an undocumented
+  auth gap.
+schemes: []
+auth_required: false
+signup_required: false
+api_key: null
+oauth2: null
+evidence:
+- url: https://api.cambio-uruguay.com/
+  status: 200
+  note: unauthenticated request returned live rates JSON
+- url: https://api.cambio-uruguay.com/evolution/brou/USD
+  status: 200
+  note: unauthenticated request returned 370-point historical series
+- url: https://mcp.cambio-uruguay.com/mcp
+  status: 200
+  note: anonymous MCP initialize + tools/list handshake completed
+agent_note: >-
+  An agent can call every documented operation with zero onboarding — no key issuance,
+  no OAuth flow, no signup. The /debug/* and POST /cache/flush operations are also
+  unauthenticated per the spec; they are operational endpoints and agents should not
+  call them.

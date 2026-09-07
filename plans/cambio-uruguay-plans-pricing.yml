@@ -1,0 +1,20 @@
+generated: '2026-09-07'
+method: searched
+source: https://cambio-uruguay.com/llms.txt + https://github.com/eduair94/cambio-uruguay (README, MIT license), 2026-09-07
+plan_count: 1
+summary: >-
+  Free, full stop. The provider publishes no pricing page and sells no plans: the site
+  describes itself as "una herramienta gratuita e independiente", the API requires no key
+  or registration, the MCP server is anonymous, and the entire codebase is open source
+  under MIT. There is no paid tier, no quota ladder, and no enterprise contact gate —
+  plan_count is 1 (a single free tier), not 0-with-a-hidden-price.
+plans:
+- name: Free public access
+  price: 0
+  currency: null
+  billing_period: null
+  included_quota: unlimited (no documented quota; no key issued)
+  overage: null
+  limits: none documented (see rate-limits/cambio-uruguay-rate-limits.yml)
+  signup_required: false
+  note: Applies equally to the REST API, the hosted MCP endpoint, and the npm stdio package.

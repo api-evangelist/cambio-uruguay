@@ -1,0 +1,125 @@
+generated: '2026-09-07'
+method: derived
+source: >-
+  Live tools/list from https://mcp.cambio-uruguay.com/mcp (7 tools, anonymous) bound against
+  openapi/cambio-uruguay-openapi.json (54 operations) by name and semantics, cross-checked
+  against the server source (github.com/eduair94/cambio-uruguay mcp/src) which describes the
+  server as a read-only wrapper over the public API.
+note: >-
+  The published OpenAPI declares NO operationIds, so rest[] rows bind by METHOD + PATH.
+  overlays/cambio-uruguay-openapi-overlay.yaml proposes operationIds for the same operations.
+surfaces:
+  openapi:
+    path: openapi/cambio-uruguay-openapi.json
+    gated: false
+  mcp:
+    url: https://mcp.cambio-uruguay.com/mcp
+    gated: false
+    note: anonymous; live inputSchemas captured in mcp/cambio-uruguay-mcp-tools.json
+crosswalk:
+- tool: get_rates
+  category: rates
+  rest:
+  - GET /
+  binding: filtered
+  confidence: high
+  note: Server-side filter + aggregation (market average, best houses, spread) over the full rates listing; BCU/interbank rows excluded.
+- tool: best_house
+  category: rates
+  rest:
+  - GET /
+  binding: computed
+  confidence: high
+  note: Comparison computed over the same rates listing — lowest sell to buy, highest buy to sell.
+- tool: convert
+  category: conversion
+  rest:
+  - GET /
+  binding: computed
+  confidence: medium
+  note: Conversion math over best market rates; foreign-to-foreign routes through UYU. No public REST /convert endpoint exists for the Uruguayan market (GET /regional/convert covers regional cross-rates only).
+- tool: list_houses
+  category: reference
+  rest:
+  - GET /localData
+  - GET /parameters/origins
+  binding: filtered
+  confidence: medium
+  note: House name, website and departments served come from the local exchange-house data; parameters/origins carries the valid origin codes.
+- tool: get_evolution
+  category: history
+  rest:
+  - GET /evolution/{origin}/{code}
+  - GET /evolution/{origin}/{code}/{type}
+  binding: direct
+  confidence: high
+- tool: get_news
+  category: news
+  rest:
+  - GET /banks-news
+  binding: direct
+  confidence: medium
+  note: Google News headlines surface; server de-duplicates and sorts newest first.
+- tool: daily_summary
+  category: analysis
+  rest:
+  - POST /ai/insights
+  binding: direct
+  confidence: medium
+  note: AI market analysis endpoint; tool adds lang (es|en|pt) and optional per-currency scoping.
+mcp_only: []
+rest_only:
+- GET /changes
+- GET /market-change
+- GET /intraday
+- GET /regional
+- GET /regional/sources
+- GET /regional/sources/{id}
+- GET /regional/changes
+- GET /regional/series
+- GET /regional/history
+- GET /regional/compare
+- GET /regional/convert
+- GET /analytics/rates
+- GET /analytics/branches
+- GET /ping
+- GET /frozen-quotes
+- GET /health
+- GET /debug/sync
+- GET /debug/db
+- GET /debug/origins
+- GET /debug/config
+- GET /ai/status
+- GET /cache/status
+- POST /cache/flush
+- GET /exchange/{origin}
+- GET /exchange/{origin}/{code}
+- GET /distances
+- POST /geocoding
+- GET /bcu
+- GET /aduana
+- GET /uy-figures
+- GET /site-analytics-realtime
+- GET /cost-of-living
+- GET /temas-analysis
+- GET /debt-relief
+- GET /bcu-rates
+- GET /loan-rates
+- GET /preferential-rates
+- GET /santander/preferential-rates
+- GET /fortex
+- GET /position_stack
+- GET /exchanges/{origin}
+- GET /exchanges/{origin}/{location}
+- GET /bcu/{origin}
+- GET /parameters/currencies
+- GET /parameters/types
+- GET /parameters/locations
+- GET /parameters/all
+coverage:
+  mcp_tools: 7
+  tools_bound: 7
+  mcp_only: 0
+  rest_operations: 54
+  rest_bound: 8
+  rest_only: 46

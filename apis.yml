@@ -1,6 +1,12 @@
 name: Cambio Uruguay
-description: Uruguayan currency exchange rates API comparing rates across exchange houses. Public JSON with no key
-  or registration, plus a hosted Streamable HTTP MCP server.
+description: >-
+  Uruguayan currency exchange-rate comparison API covering 40+ casas de cambio and banks,
+  refreshed roughly every 10 minutes from Banco Central del Uruguay-registered sources.
+  Public keyless JSON — no registration, no API key — with current buy/sell quotes, best-house
+  comparison, six-month historical series, branch locations with geocoding, BCU reference
+  rates, and economic indicators, plus a hosted anonymous Streamable HTTP MCP server and an
+  npx-runnable stdio package for AI agents. Open source (MIT) by Eduardo Airaudo.
+image: https://cambio-uruguay.com/__og-image__/image/og.png
 url: https://raw.githubusercontent.com/api-evangelist/cambio-uruguay/refs/heads/main/apis.yml
 created: '2026-09-07'
 modified: '2026-09-07'
@@ -11,8 +17,17 @@ tags:
 - Finance
 - Uruguay
 - Latin America
+- MCP
+- agent-native
+- Open Source
 apis:
 - name: Cambio Uruguay API
+  description: >-
+    REST API for real-time Uruguayan exchange rates: every quote across 40+ houses, per-house
+    and per-currency drill-down, historical evolution with statistics, branch locations and
+    geocoding, BCU reference rates, and market/economic indicators. 54 operations, all
+    anonymous; errors return a validation envelope that lists valid values for retry.
+  image: https://cambio-uruguay.com/__og-image__/image/og.png
   humanURL: https://api.cambio-uruguay.com/api-docs
   baseURL: https://api.cambio-uruguay.com
   tags:
@@ -21,14 +36,50 @@ apis:
   properties:
   - type: OpenAPI
     url: https://api.cambio-uruguay.com/api-docs.json
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-openapi.json
   - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
     url: https://api.cambio-uruguay.com/api-docs
   - type: LLMsTxt
     url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+  - type: Overlay
+    url: overlays/cambio-uruguay-openapi-overlay.yaml
+- name: Cambio Uruguay MCP Server
+  description: >-
+    First-party MCP server for AI agents, shipped both as a hosted anonymous Streamable HTTP
+    endpoint and as the npx-runnable npm package cambio-uruguay-mcp. Seven read-only tools —
+    rates, best house, conversion, houses, evolution, news, AI daily summary — plus an
+    analizar-dolar-hoy prompt. Live tools/list handshake verified 2026-09-07.
+  image: https://cambio-uruguay.com/__og-image__/image/og.png
+  humanURL: https://github.com/eduair94/cambio-uruguay/tree/main/mcp
+  baseURL: https://mcp.cambio-uruguay.com/mcp
+  tags:
+  - MCP
+  - agent-native
+  - Currency
+  properties:
   - type: MCPServer
     url: https://mcp.cambio-uruguay.com/mcp
+  - type: MCPServer
+    url: mcp/cambio-uruguay-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/cambio-uruguay-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/eduair94/cambio-uruguay/blob/main/mcp/README.md
 maintainers:
 - FN: Cambio Uruguay
+  email: info@cambio-uruguay.com
+  url: https://cambio-uruguay.com
 x-source:
   via: api-search/inbox#23 (eduair94); MCP handshake completed live
   fetched: '2026-09-07'
@@ -36,3 +87,48 @@ x-source:
 common:
 - type: Website
   url: https://cambio-uruguay.com
+- type: Documentation
+  url: https://api.cambio-uruguay.com/api-docs
+- type: APIReference
+  url: https://api.cambio-uruguay.com/api-docs
+- type: SourceCode
+  url: https://github.com/eduair94/cambio-uruguay
+- type: TermsOfService
+  url: https://cambio-uruguay.com/terminos
+- type: Support
+  url: https://cambio-uruguay.com/preguntas-frecuentes
+- type: LLMsTxt
+  url: llms/cambio-uruguay-llms.txt
+- type: MCPServer
+  url: mcp/cambio-uruguay-mcp.yml
+- type: WellKnown
+  url: well-known/cambio-uruguay-well-known.yml
+- type: SecurityTxt
+  url: well-known/cambio-uruguay-security.txt
+- type: Packages
+  url: packages/cambio-uruguay-packages.yml
+- type: Authentication
+  url: authentication/cambio-uruguay-authentication.yml
+- type: Conventions
+  url: conventions/cambio-uruguay-conventions.yml
+- type: Conformance
+  url: conformance/cambio-uruguay-conformance.yml
+- type: Lifecycle
+  url: lifecycle/cambio-uruguay-lifecycle.yml
+- type: DomainSecurity
+  url: security/cambio-uruguay-domain-security.yml
+- type: VulnerabilityDisclosure
+  url: security/cambio-uruguay-vulnerability-disclosure.yml
+- type: Security
+  url: security/cambio-uruguay-vulnerability-disclosure.yml
+- type: RateLimits
+  url: rate-limits/cambio-uruguay-rate-limits.yml
+- type: Plans
+  url: plans/cambio-uruguay-plans-pricing.yml
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-09-07'
+  status: enriched
+  artifacts_added: 24
+  pass: local-v3

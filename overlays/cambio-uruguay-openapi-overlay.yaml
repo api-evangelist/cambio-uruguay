@@ -1,0 +1,63 @@
+# generated: 2026-09-07
+# method: generated
+# source: openapi/cambio-uruguay-openapi.json (fetched verbatim from https://api.cambio-uruguay.com/api-docs.json)
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Cambio Uruguay API
+  version: 1.0.0
+extends: openapi/cambio-uruguay-openapi.json
+actions:
+- target: $.paths['/'].get
+  description: The published spec declares no operationIds anywhere; assign one to the primary rates listing so tools and skills can bind by id.
+  update:
+    operationId: listExchangeRates
+- target: $.paths['/exchange/{origin}'].get
+  update:
+    operationId: getExchangeByOrigin
+- target: $.paths['/exchange/{origin}/{code}'].get
+  update:
+    operationId: getExchangeByOriginAndCode
+- target: $.paths['/evolution/{origin}/{code}'].get
+  update:
+    operationId: getCurrencyEvolution
+- target: $.paths['/evolution/{origin}/{code}/{type}'].get
+  update:
+    operationId: getCurrencyEvolutionByType
+- target: $.paths['/localData'].get
+  update:
+    operationId: listLocalExchangeData
+- target: $.paths['/exchanges/{origin}'].get
+  update:
+    operationId: listExchangeLocations
+- target: $.paths['/parameters/all'].get
+  update:
+    operationId: getAllParameters
+- target: $.paths['/ai/insights'].post
+  update:
+    operationId: createAiInsight
+- target: $.paths['/banks-news'].get
+  update:
+    operationId: listBanksNews
+- target: $.paths['/debug/sync'].get
+  description: Operational/debug surface documented in the public contract; flag so client generators and agents skip it.
+  update:
+    x-internal: true
+- target: $.paths['/debug/db'].get
+  update:
+    x-internal: true
+- target: $.paths['/debug/origins'].get
+  update:
+    x-internal: true
+- target: $.paths['/debug/config'].get
+  update:
+    x-internal: true
+- target: $.paths['/cache/flush'].post
+  description: Unauthenticated operational cache reset; not for API consumers.
+  update:
+    x-internal: true
+- target: $.info
+  description: Record provenance of this catalog copy.
+  update:
+    x-apievangelist:
+      fetched: '2026-09-07'
+      source: https://api.cambio-uruguay.com/api-docs.json

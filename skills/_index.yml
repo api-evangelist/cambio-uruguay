@@ -1,0 +1,18 @@
+generated: '2026-09-07'
+method: generated
+source: openapi/cambio-uruguay-openapi.json + mcp/cambio-uruguay-mcp-tools.json
+note: >-
+  No provider-published Agent Skills or AGENTS.md for API consumers were found (the repo's
+  AGENTS.md is internal ops documentation for the site's own sync jobs, not an agent surface
+  for API consumers) — these three skills are generated from the published contract, with
+  every operation verified to exist in the spec.
+skills:
+- name: cambio-uruguay-best-exchange-rate
+  file: cambio-uruguay-best-exchange-rate.md
+  description: Find the best place in Uruguay to buy or sell a currency right now.
+- name: cambio-uruguay-currency-evolution
+  file: cambio-uruguay-currency-evolution.md
+  description: Chart how a currency's rates evolved at a specific exchange house.
+- name: cambio-uruguay-find-exchange-branches
+  file: cambio-uruguay-find-exchange-branches.md
+  description: Locate physical branches and find the nearest one to the user.

@@ -1,0 +1,21 @@
+generated: '2026-09-07'
+method: probed
+source: live unauthenticated responses from https://api.cambio-uruguay.com/ + full-text search of the OpenAPI and docs, 2026-09-07
+limit_count: 0
+summary: >-
+  No rate limits are documented anywhere — the OpenAPI contains no 429 response and no
+  limit language, the docs publish no quota, and live responses carry no X-RateLimit-*,
+  RateLimit-* or Retry-After headers. The API sits behind Cloudflare with a 5-second
+  public edge cache (cache-control: public, max-age=5, s-maxage=5), which is the only
+  observable throttling-adjacent behavior. An honest zero: undocumented, not unlimited —
+  Cloudflare-level controls may still apply unannounced.
+limits: []
+response_headers: []
+exhaustion_status: null
+observed:
+- url: https://api.cambio-uruguay.com/
+  status: 200
+  headers:
+    server: cloudflare
+    cache-control: public, max-age=5, s-maxage=5
+  note: no rate-limit signaling headers present

@@ -1,0 +1,48 @@
+generated: '2026-09-07'
+method: derived
+source: openapi/cambio-uruguay-openapi.json 4xx/5xx responses + live probe of https://api.cambio-uruguay.com/exchange/notarealorigin (400), 2026-09-07
+format: custom
+summary: >-
+  Errors use a plain JSON envelope, not RFC 9457 problem+json. Two shapes: a minimal
+  {error} object (ErrorResponse) on 404/500/503, and a rich validation shape
+  (ValidationError) on 400 that names the bad parameter, echoes the value, lists every
+  valid value, and offers a suggestion — confirmed live: an invalid origin returned 400
+  with error/parameter/value/validValues populated.
+envelope:
+  error_field: error
+  validation_fields: [error, parameter, value, validValues, suggestion]
+problem_types:
+- status: 400
+  title: Validation error
+  schema: ValidationError
+  operations: 17
+  description: >-
+    Invalid or missing parameter (origin, currency code, period, date range). Response
+    names the parameter, the supplied value, the full list of valid values, and a
+    remediation suggestion — unusually agent-friendly for recovery without docs.
+  remediation: Read validValues from the response and retry with a valid value; GET /parameters/all lists every valid origin, currency, type, and location.
+  example:
+    error: Invalid origin parameter
+    parameter: origin
+    value: notarealorigin
+- status: 404
+  title: Not found
+  schema: ErrorResponse
+  operations: 4
+  description: No data for the requested origin/currency combination or regional source id.
+  remediation: Verify the origin and code against GET /parameters/origins and /parameters/currencies.
+- status: 500
+  title: Internal server error
+  schema: ErrorResponse
+  operations: 3
+  description: Unexpected server failure on the rates listing or health endpoints.
+  remediation: Retry later; all reads are cached (~5s edge cache) and safe to retry.
+- status: 503
+  title: AI service unavailable
+  schema: ErrorResponse
+  operations: 1
+  description: POST /ai/insights when the AI analysis backend is down or not configured.
+  remediation: Check GET /ai/status before retrying.
+notes:
+- No 401/403 responses exist anywhere in the contract — consistent with the keyless auth model.
+- No 429 is declared and no rate-limit headers were observed on live responses (see rate-limits/cambio-uruguay-rate-limits.yml).

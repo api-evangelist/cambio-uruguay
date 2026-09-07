@@ -1,0 +1,28 @@
+generated: '2026-09-07'
+method: derived
+source: openapi/cambio-uruguay-openapi.json + site/docs sweep, 2026-09-07
+summary: >-
+  No formal lifecycle program is published: no versioning or deprecation policy, no
+  Sunset/Deprecation header usage, no SLA, and no status page. The contract itself
+  carries zero deprecated operations. Operational health is exposed in-band via
+  GET /health, GET /ping and GET /frozen-quotes (stale-quote detection) rather than
+  through an external status page — so no StatusPage or Deprecation pointer is emitted.
+versioning:
+  scheme: none
+  current_version: 1.0.0
+  policy_url: null
+deprecation:
+  policy_url: null
+  headers: []
+  deprecated_operations: []
+status_page: null
+sla: null
+health:
+  endpoints:
+  - GET /health
+  - GET /ping
+  - GET /frozen-quotes
+  note: GET /frozen-quotes reports exchange houses whose quotes have stopped updating — an in-band data-freshness signal unusual for this class of API.
+data_freshness:
+  update_cadence: ~10 minutes (llms.txt)
+  edge_cache: 5 seconds (probed cache-control)

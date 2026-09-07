@@ -1,0 +1,55 @@
+generated: '2026-09-07'
+method: derived
+source: openapi/cambio-uruguay-openapi.json + live response headers from https://api.cambio-uruguay.com/, 2026-09-07
+summary: >-
+  Cross-cutting semantics for a keyless, read-only public JSON API. No auth, no pagination
+  (list endpoints return complete arrays), no versioned URL scheme, plain {error} envelope
+  with a rich 400 validation shape. Effectively no persistent write surface: the three POSTs
+  (/ai/insights, /geocoding, /cache/flush) are computational or operational, none creates or
+  mutates a stored resource, so idempotency and reversibility are honestly not-applicable
+  rather than missing.
+authentication:
+  style: none
+  see: authentication/cambio-uruguay-authentication.yml
+pagination:
+  style: none
+  notes: >-
+    Rates, locations and parameters endpoints return the full result set in one array.
+    Historical endpoints scope by path (origin/code) and query period rather than paging.
+versioning:
+  scheme: none
+  notes: >-
+    No version segment in URLs and no versioning policy published; info.version is 1.0.0.
+    See lifecycle/cambio-uruguay-lifecycle.yml.
+error_envelope:
+  shape: '{error} / {error, parameter, value, validValues, suggestion} on 400'
+  format: custom (not RFC 9457)
+  see: errors/cambio-uruguay-problem-types.yml
+caching:
+  method: probed
+  headers: 'cache-control: public, max-age=5, s-maxage=5'
+  notes: Served through Cloudflare; rates are refreshed roughly every 10 minutes upstream (llms.txt), edge-cached for 5 seconds.
+rate_limit_signaling:
+  headers: []
+  notes: No X-RateLimit-*/RateLimit-*/Retry-After headers observed and no 429 in the contract. See rate-limits/cambio-uruguay-rate-limits.yml.
+request_tracing:
+  supported: false
+  notes: No request-id header observed; CF-RAY (Cloudflare) is the only correlation identifier on responses.
+idempotency:
+  coverage: na
+  documented: false
+  header: null
+  notes: >-
+    Every documented data operation is a GET. POST /ai/insights and POST /geocoding are
+    pure computations over supplied input and POST /cache/flush is an operational cache
+    reset — no operation creates, updates, or deletes a stored resource, so there is no
+    write to protect from replay. Recorded as na, not none: the denominator, not a zero.
+reversibility:
+  status: na
+  notes: >-
+    No write surface exists — nothing an agent does through this API changes provider
+    state that could need reversal. dry_run_mode is likewise na.
+dry_run_mode:
+  status: na
+i18n:
+  notes: Docs and most descriptions are in Spanish; the AI insights endpoint accepts lang es | en | pt; the website ships es (default), /en and /pt.

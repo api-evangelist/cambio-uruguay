@@ -1,0 +1,73 @@
+generated: '2026-09-07'
+method: probed
+status: published
+source: https://mcp.cambio-uruguay.com/mcp (live initialize + tools/list handshake, 2026-09-07)
+docs: https://github.com/eduair94/cambio-uruguay/tree/main/mcp
+registry_manifest: mcp/cambio-uruguay-server.json
+tools_verbatim: mcp/cambio-uruguay-mcp-tools.json
+summary: >-
+  First-party MCP server for live Uruguayan exchange-rate data, shipped BOTH as a hosted
+  Streamable HTTP endpoint and as an npx-runnable stdio package (npm cambio-uruguay-mcp).
+  The remote endpoint is anonymous, stateless and read-only: initialize and tools/list both
+  answered without any auth on 2026-09-07, returning 7 tools with full inputSchema (saved
+  verbatim to cambio-uruguay-mcp-tools.json). The repo also carries an MCP registry
+  server.json (io.github.eduair94/cambio-uruguay) declaring both transports.
+deployment:
+  mode: both
+  endpoint: https://mcp.cambio-uruguay.com/mcp
+  install: npx -y cambio-uruguay-mcp
+  package: https://www.npmjs.com/package/cambio-uruguay-mcp
+  auth: none
+  verified: probed
+server:
+  name: cambio-uruguay
+  version: 0.1.0
+  transport: streamable-http
+  url: https://mcp.cambio-uruguay.com/mcp
+  protocolVersion: '2025-06-18'
+  capabilities:
+    tools:
+      listChanged: true
+    prompts:
+      listChanged: true
+auth:
+  methods:
+  - none
+  note: >-
+    No OAuth challenge, no API key. /.well-known/oauth-authorization-server and
+    /.well-known/oauth-protected-resource both 404 on mcp.cambio-uruguay.com —
+    consistent with an intentionally anonymous public server.
+tool_count: 7
+tools:
+- name: get_rates
+  category: rates
+  description: Current buy/sell rates for a currency across Uruguayan exchange houses — market average, best buy/sell house, lowest spread, full per-house list. Excludes BCU and interbank quotes.
+  required: [currency]
+- name: best_house
+  category: rates
+  description: The single best casa de cambio to buy (lowest sell) or sell (highest buy) a currency right now.
+  required: [currency, side]
+- name: convert
+  category: conversion
+  description: Convert an amount between currencies at the best market rates; foreign-to-foreign routes through UYU.
+  required: [amount, from, to]
+- name: list_houses
+  category: reference
+  description: Every tracked exchange house with name, website, and departments served.
+  required: []
+- name: get_evolution
+  category: history
+  description: Historical series and statistics (min/max/avg/current/change) for a house + currency over a period of months.
+  required: [origin, currency]
+- name: get_news
+  category: news
+  description: Latest Uruguayan dollar/economy headlines (Google News), de-duplicated, newest first.
+  required: []
+- name: daily_summary
+  category: analysis
+  description: AI market analysis for the whole market or one currency; lang es | en | pt.
+  required: []
+prompts:
+- name: analizar-dolar-hoy
+  description: Chains the tools into a one-shot Spanish summary of today's dollar market.
+  source: https://github.com/eduair94/cambio-uruguay/blob/main/mcp/README.md

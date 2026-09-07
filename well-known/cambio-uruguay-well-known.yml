@@ -1,0 +1,93 @@
+generated: '2026-09-07'
+method: probed
+source: live probes of /.well-known/ on all four Cambio Uruguay hosts, 2026-09-07
+summary: >-
+  One real document is served: an RFC 9116 security.txt on the apex (and identically on www),
+  saved verbatim to cambio-uruguay-security.txt. Everything else 404s cleanly on every host —
+  no OIDC discovery, no OAuth server/resource metadata (the MCP server is anonymous, so none is
+  expected), no api-catalog, no ai-plugin.json, and no A2A agent card on either the canonical
+  /.well-known/agent-card.json or the legacy /.well-known/agent.json path.
+pointer_basis: >-
+  WellKnown and SecurityTxt pointers are emitted on the strength of the 200 on
+  https://cambio-uruguay.com/.well-known/security.txt, whose body is a real RFC 9116 document
+  (Contact, Expires, Preferred-Languages, Canonical, Policy, Acknowledgments). Caveats recorded
+  honestly: it is served with content-type application/json instead of text/plain, its Expires
+  (2026-06-09) had already passed when probed on 2026-09-07, and its Policy and Acknowledgments
+  URLs both return 404 (see security/cambio-uruguay-vulnerability-disclosure.yml).
+hosts:
+- host: https://cambio-uruguay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: cambio-uruguay-security.txt
+    note: content-type application/json (body is valid RFC 9116 text); Expires 2026-06-09 already past at probe time
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://www.cambio-uruguay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: cambio-uruguay-security.txt
+    note: identical body to the apex copy; not saved twice
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://api.cambio-uruguay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://mcp.cambio-uruguay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
