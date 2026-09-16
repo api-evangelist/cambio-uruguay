@@ -19,47 +19,23 @@ tags:
 - Latin America
 - MCP
 - agent-native
+- Open-Source
+tags_raw:
+- Currency
+- Exchange Rates
+- Finance
+- Uruguay
+- Latin America
+- MCP
+- agent-native
 - Open Source
 apis:
-- name: Cambio Uruguay API
-  description: >-
-    REST API for real-time Uruguayan exchange rates: every quote across 40+ houses, per-house
-    and per-currency drill-down, historical evolution with statistics, branch locations and
-    geocoding, BCU reference rates, and market/economic indicators. 54 operations, all
-    anonymous; errors return a validation envelope that lists valid values for retry.
-  image: https://cambio-uruguay.com/__og-image__/image/og.png
-  humanURL: https://api.cambio-uruguay.com/api-docs
-  baseURL: https://api.cambio-uruguay.com
-  tags:
-  - Currency
-  - Exchange Rates
-  properties:
-  - type: OpenAPI
-    url: https://api.cambio-uruguay.com/api-docs.json
-  - type: OpenAPI
-    url: openapi/cambio-uruguay-openapi.json
-  - type: Documentation
-    url: https://api.cambio-uruguay.com/api-docs
-  - type: APIReference
-    url: https://api.cambio-uruguay.com/api-docs
-  - type: LLMsTxt
-    url: https://cambio-uruguay.com/llms.txt
-  - type: Authentication
-    url: authentication/cambio-uruguay-authentication.yml
-  - type: Conventions
-    url: conventions/cambio-uruguay-conventions.yml
-  - type: ErrorCatalog
-    url: errors/cambio-uruguay-problem-types.yml
-  - type: DataModel
-    url: data-model/cambio-uruguay-data-model.yml
-  - type: Overlay
-    url: overlays/cambio-uruguay-openapi-overlay.yaml
 - name: Cambio Uruguay MCP Server
   description: >-
-    First-party MCP server for AI agents, shipped both as a hosted anonymous Streamable HTTP
-    endpoint and as the npx-runnable npm package cambio-uruguay-mcp. Seven read-only tools —
-    rates, best house, conversion, houses, evolution, news, AI daily summary — plus an
-    analizar-dolar-hoy prompt. Live tools/list handshake verified 2026-09-07.
+    First-party MCP server for AI agents, shipped both as a hosted anonymous Streamable HTTP endpoint
+    and as the npx-runnable npm package cambio-uruguay-mcp. Seven read-only tools — rates, best house,
+    conversion, houses, evolution, news, AI daily summary — plus an analizar-dolar-hoy prompt. Live tools/list
+    handshake verified 2026-09-07.
   image: https://cambio-uruguay.com/__og-image__/image/og.png
   humanURL: https://github.com/eduair94/cambio-uruguay/tree/main/mcp
   baseURL: https://mcp.cambio-uruguay.com/mcp
@@ -76,6 +52,322 @@ apis:
     url: mcp/cambio-uruguay-tool-crosswalk.yml
   - type: Documentation
     url: https://github.com/eduair94/cambio-uruguay/blob/main/mcp/README.md
+- aid: cambio-uruguay:cambio-uruguay-aduana-api
+  name: Cambio Uruguay Aduana API
+  description: >-
+    Guía de problemas con la aduana uruguaya: hechos legales citados, procedimientos y testimonios de
+    r/uruguay
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Aduana
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-aduana-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-ai-insights-api
+  name: Cambio Uruguay AI Insights API
+  description: Endpoints de inteligencia artificial para análisis de mercado y generación de insights
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - AI Insights
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-ai-insights-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-banks-api
+  name: Cambio Uruguay Banks API
+  description: The Banks API from Cambio Uruguay — 1 operation(s) for banks.
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Banks
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-banks-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-bcu-api
+  name: Cambio Uruguay BCU API
+  description: Endpoints para datos del Banco Central del Uruguay
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - BCU
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-bcu-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-debug-api
+  name: Cambio Uruguay Debug API
+  description: Endpoints de depuración para monitorear el estado interno del servicio
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Debug
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-debug-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-evolution-api
+  name: Cambio Uruguay Evolution API
+  description: Endpoints para datos históricos y evolución de monedas
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Evolution
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-evolution-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-exchange-data-api
+  name: Cambio Uruguay Exchange Data API
+  description: Endpoints para obtener datos de tipos de cambio
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Exchange Data
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-exchange-data-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-geocoding-api
+  name: Cambio Uruguay Geocoding API
+  description: Endpoints para servicios de geocodificación
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Geocoding
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-geocoding-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-health-api
+  name: Cambio Uruguay Health API
+  description: Endpoints para verificar el estado del servicio
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-health-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-indicators-api
+  name: Cambio Uruguay Indicators API
+  description: The Indicators API from Cambio Uruguay — 7 operation(s) for indicators.
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Indicators
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-indicators-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-locations-api
+  name: Cambio Uruguay Locations API
+  description: Endpoints para obtener información de ubicaciones
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Locations
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-locations-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-parameters-api
+  name: Cambio Uruguay Parameters API
+  description: Endpoints para obtener parámetros válidos del sistema
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Parameters
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-parameters-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-regional-api
+  name: Cambio Uruguay Regional API
+  description: >-
+    Cotizaciones de la región: el dólar y los cruces en Argentina, Brasil, Paraguay, Chile, Bolivia y
+    Uruguay, con series diarias y comparación de rutas
+  humanURL: https://api.cambio-uruguay.com/api-docs
+  baseURL: https://api.cambio-uruguay.com
+  tags:
+  - Regional
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-regional-api-openapi.yml
+  - type: Documentation
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: APIReference
+    url: https://api.cambio-uruguay.com/api-docs
+  - type: LLMsTxt
+    url: https://cambio-uruguay.com/llms.txt
+  - type: Authentication
+    url: authentication/cambio-uruguay-authentication.yml
+  - type: Conventions
+    url: conventions/cambio-uruguay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/cambio-uruguay-problem-types.yml
+  - type: DataModel
+    url: data-model/cambio-uruguay-data-model.yml
 maintainers:
 - FN: Cambio Uruguay
   email: info@cambio-uruguay.com
@@ -85,6 +377,8 @@ x-source:
   fetched: '2026-09-07'
   note: Every pointer probed before writing; controls discriminate.
 common:
+- type: Overlay
+  url: overlays/cambio-uruguay-openapi-overlay.yaml
 - type: Website
   url: https://cambio-uruguay.com
 - type: Documentation
