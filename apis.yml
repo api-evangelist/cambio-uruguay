@@ -300,6 +300,8 @@ apis:
   humanURL: https://api.cambio-uruguay.com/api-docs
   baseURL: https://api.cambio-uruguay.com
   tags:
+  - Location
+  tags_raw:
   - Locations
   properties:
   - type: OpenAPI
