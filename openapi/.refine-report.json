@@ -1,0 +1,46 @@
+{
+  "provider": "cambio-uruguay",
+  "sources": [
+    "_original/cambio-uruguay-openapi.json"
+  ],
+  "outputs": [
+    "cambio-uruguay-ai-insights-api-openapi.yml",
+    "cambio-uruguay-aduana-api-openapi.yml",
+    "cambio-uruguay-bcu-api-openapi.yml",
+    "cambio-uruguay-banks-api-openapi.yml",
+    "cambio-uruguay-debug-api-openapi.yml",
+    "cambio-uruguay-evolution-api-openapi.yml",
+    "cambio-uruguay-exchange-data-api-openapi.yml",
+    "cambio-uruguay-geocoding-api-openapi.yml",
+    "cambio-uruguay-health-api-openapi.yml",
+    "cambio-uruguay-indicators-api-openapi.yml",
+    "cambio-uruguay-locations-api-openapi.yml",
+    "cambio-uruguay-parameters-api-openapi.yml",
+    "cambio-uruguay-regional-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "cambio-uruguay-openapi.json: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "cambio-uruguay-openapi.json: declared missing tag: Banks",
+    "cambio-uruguay-openapi.json: declared missing tag: Indicators",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "cambio-uruguay-aduana-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-ai-insights-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-banks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-bcu-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-debug-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-evolution-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-exchange-data-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-geocoding-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-health-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-indicators-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-locations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-parameters-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "cambio-uruguay-regional-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

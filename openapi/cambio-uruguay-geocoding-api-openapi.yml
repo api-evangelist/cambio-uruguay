@@ -1,0 +1,171 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Geocoding API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Geocoding
+  description: Endpoints para servicios de geocodificación
+paths:
+  /geocoding:
+    post:
+      tags:
+      - Geocoding
+      summary: Geocodificar una dirección
+      description: 'Convierte una dirección de texto en coordenadas geográficas.
+
+        Utiliza el servicio OpenStreetMap Nominatim para la geocodificación.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: Dirección a geocodificar
+                  example: 18 de Julio 1234, Montevideo, Uruguay
+              required:
+              - address
+      responses:
+        '200':
+          description: Resultados de geocodificación
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeocodeResponse'
+              examples:
+                found:
+                  summary: Dirección encontrada
+                  value:
+                  - display_name: 18 de Julio 1234, Montevideo, Uruguay
+                    lat: '-34.9058'
+                    lon: '-56.1909'
+                    boundingbox:
+                    - '-34.9158'
+                    - '-34.8958'
+                    - '-56.2009'
+                    - '-56.1809'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      operationId: postGeocoding
+      x-operation-id-source: derived
+  /position_stack:
+    get:
+      tags:
+      - Geocoding
+      summary: Geocodificación inversa con PositionStack
+      description: 'Convierte coordenadas geográficas en información de ubicación
+
+        utilizando el servicio PositionStack.'
+      parameters:
+      - name: query
+        in: query
+        required: true
+        description: Coordenadas en formato "latitud,longitud"
+        schema:
+          type: string
+          pattern: ^-?\d+\.?\d*,-?\d+\.?\d*$
+        example: -34.9173,-56.1501
+      - name: limit
+        in: query
+        required: false
+        description: Número máximo de resultados
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 1
+      responses:
+        '200':
+          description: Información de ubicación obtenida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        latitude:
+                          type: number
+                        longitude:
+                          type: number
+                        label:
+                          type: string
+                        name:
+                          type: string
+                        country:
+                          type: string
+                        region:
+                          type: string
+      operationId: getPositionStack
+      x-operation-id-source: derived
+components:
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
+    GeocodeResponse:
+      type: object
+      properties:
+        display_name:
+          type: string
+          description: Nombre completo del lugar
+          example: Montevideo, Uruguay
+        lat:
+          type: string
+          description: Latitud
+          example: '-34.9011127'
+        lon:
+          type: string
+          description: Longitud
+          example: '-56.1645314'
+        boundingbox:
+          type: array
+          items:
+            type: string
+          description: Límites geográficos
+          example:
+          - '-34.9411127'
+          - '-34.8611127'
+          - '-56.2045314'
+          - '-56.1245314'
+      required:
+      - display_name
+      - lat
+      - lon

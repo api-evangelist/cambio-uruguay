@@ -1,0 +1,410 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Evolution API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Evolution
+  description: Endpoints para datos históricos y evolución de monedas
+paths:
+  /changes:
+    get:
+      tags:
+      - Evolution
+      summary: Últimos cambios reales de cotización
+      description: Devuelve únicamente transiciones donde cambió compra o venta; las verificaciones sin cambios no generan registros.
+      parameters:
+      - name: origin
+        in: query
+        schema:
+          type: string
+      - name: code
+        in: query
+        schema:
+          type: string
+          example: USD
+      - name: type
+        in: query
+        schema:
+          type: string
+      - name: since
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 100
+      responses:
+        '200':
+          description: Cambios ordenados del más reciente al más antiguo
+      operationId: getChanges
+      x-operation-id-source: derived
+  /market-change:
+    get:
+      tags:
+      - Evolution
+      summary: Variación del mercado contra una hora exacta
+      description: Compara el promedio actual con el estado reconstruido exactamente N horas atrás (24 por defecto).
+      parameters:
+      - name: hours
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 720
+          default: 24
+      responses:
+        '200':
+          description: Variación por moneda usando las mismas cotizaciones en ambos extremos
+      operationId: getMarketChange
+      x-operation-id-source: derived
+  /intraday:
+    get:
+      tags:
+      - Evolution
+      summary: Cotización y variación intradía de un día concreto
+      description: 'Devuelve, para un día calendario de Montevideo, la apertura, el último
+
+        valor, el máximo, el mínimo y la lista de cambios reales de cada
+
+        cotización pública de una moneda.
+
+
+        La apertura no se lee de la fila diaria (esa fila se sobrescribe en cada
+
+        sync, así que es el cierre): se reconstruye con el `previousBuy`/`previousSell`
+
+        del primer cambio del día y, si el día no tuvo cambios, con el último
+
+        estado conocido anterior. `openSource` dice cuál de los caminos se usó.
+
+
+        Endpoint público, sin autenticación y sin datos personales: sólo precios
+
+        publicados por las casas de cambio.'
+      parameters:
+      - name: date
+        in: query
+        schema:
+          type: string
+          format: date
+          example: '2026-08-20'
+        description: Día en zona America/Montevideo. Por defecto, hoy.
+      - name: code
+        in: query
+        schema:
+          type: string
+          default: USD
+          example: USD
+      - name: origins
+        in: query
+        schema:
+          type: string
+        description: Lista de origins separada por comas.
+      - name: type
+        in: query
+        schema:
+          type: string
+          example: EBROU
+        description: Tipo exacto de cotización. Vacío = cotización simple; hoy también existen EBROU y TRANSFERENCIA.
+      responses:
+        '200':
+          description: Serie intradía por cotización más el resumen del día
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getIntraday
+      x-operation-id-source: derived
+  /analytics/rates:
+    get:
+      tags:
+      - Evolution
+      summary: Series de cotización por hora o por día
+      description: Reconstruye el último valor conocido de cada casa por intervalo, usando el ledger intradía y el histórico diario anterior.
+      parameters:
+      - name: code
+        in: query
+        schema:
+          type: string
+          example: USD
+      - name: origins
+        in: query
+        schema:
+          type: string
+        description: Lista de origins separada por comas
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: interval
+        in: query
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          default: hour
+      responses:
+        '200':
+          description: Series alineadas por intervalo y catálogo de filtros disponibles
+      operationId: getAnalyticsRates
+      x-operation-id-source: derived
+  /analytics/branches:
+    get:
+      tags:
+      - Evolution
+      summary: Sucursales disponibles para filtrar analíticas
+      description: Incluye sucursales activas aunque todavía no tengan coordenadas para el mapa.
+      responses:
+        '200':
+          description: Catálogo de sucursales activas
+      operationId: getAnalyticsBranches
+      x-operation-id-source: derived
+  /evolution/{origin}/{code}:
+    get:
+      tags:
+      - Evolution
+      summary: Obtener evolución histórica de una moneda
+      description: 'Retorna datos históricos de evolución de precios para una moneda específica
+
+        en una casa de cambio durante un período determinado.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.
+
+        Para obtener la lista de monedas válidas, use `/parameters/currencies`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      - $ref: '#/components/parameters/CurrencyCodeParam'
+      - $ref: '#/components/parameters/PeriodParam'
+      responses:
+        '200':
+          description: Datos de evolución histórica
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrencyEvolution'
+              examples:
+                evolution_data:
+                  summary: Evolución del USD en La Favorita
+                  value:
+                  - date: '2025-08-01'
+                    buy: 38.75
+                    sell: 41.15
+                    avg: 39.95
+                  - date: '2025-08-02'
+                    buy: 38.8
+                    sell: 41.2
+                    avg: 40
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getEvolutionByOriginByCode
+      x-operation-id-source: derived
+  /evolution/{origin}/{code}/{type}:
+    get:
+      tags:
+      - Evolution
+      summary: Obtener evolución histórica por tipo de cambio
+      description: 'Retorna datos históricos de evolución de precios para un tipo específico
+
+        de cambio (BILLETE, CABLE, etc.) de una moneda en una casa de cambio.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.
+
+        Para obtener la lista de monedas válidas, use `/parameters/currencies`.
+
+        Para obtener la lista de tipos válidos, use `/parameters/types`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      - $ref: '#/components/parameters/CurrencyCodeParam'
+      - $ref: '#/components/parameters/ExchangeTypeParam'
+      - $ref: '#/components/parameters/PeriodParam'
+      responses:
+        '200':
+          description: Datos de evolución histórica por tipo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrencyEvolution'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getEvolutionByOriginByCodeByType
+      x-operation-id-source: derived
+components:
+  parameters:
+    CurrencyCodeParam:
+      name: code
+      in: path
+      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Z]{3}$
+        example: USD
+      x-parameter-type: currency
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    ExchangeTypeParam:
+      name: type
+      in: path
+      description: Tipo de cambio. Para obtener valores válidos, consulte /parameters/types
+      required: true
+      schema:
+        type: string
+        example: ''
+      x-parameter-type: type
+    PeriodParam:
+      name: period
+      in: query
+      description: Período en meses para datos históricos (1-60)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 60
+        default: 6
+        example: 12
+  responses:
+    ValidationError:
+      description: Error de validación de parámetros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          examples:
+            invalid_origin:
+              summary: Casa de cambio inválida
+              value:
+                error: Invalid origin parameter
+                parameter: origin
+                value: invalid_exchange
+                validValues:
+                - la_favorita
+                - cambio_minas
+                - brou
+                - cambio_regul
+                - itau
+                - oca
+                - prex
+                - santander
+                - bcu
+                - cambilex
+                suggestion: Use /parameters/origins to get all valid origins
+            invalid_currency:
+              summary: Moneda inválida
+              value:
+                error: Invalid currency code
+                parameter: code
+                value: INVALID
+                validValues:
+                - USD
+                - EUR
+                - ARS
+                - BRL
+                - XAU
+                - UR
+                - UP
+                - UI
+                - PYG
+                - PEN
+                - MXN
+                - JPY
+                - GBP
+                - COP
+                - CLP
+                - CHF
+                - CAD
+                - AUD
+                suggestion: Use /parameters/currencies to get all valid currency codes
+  schemas:
+    CurrencyEvolution:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Fecha de la cotización
+          example: '2025-08-09'
+        buy:
+          type: number
+          format: float
+          description: Precio de compra
+          example: 38.75
+        sell:
+          type: number
+          format: float
+          description: Precio de venta
+          example: 41.15
+        avg:
+          type: number
+          format: float
+          description: Precio promedio
+          example: 39.95
+      required:
+      - date
+      - buy
+      - sell
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues

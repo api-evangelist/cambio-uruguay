@@ -1,0 +1,348 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Locations API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Locations
+  description: Endpoints para obtener información de ubicaciones
+paths:
+  /distances:
+    get:
+      tags:
+      - Locations
+      summary: Calcular distancias a casas de cambio
+      description: 'Calcula las distancias desde una ubicación específica a todas las casas
+
+        de cambio disponibles. Útil para encontrar las sucursales más cercanas.'
+      parameters:
+      - $ref: '#/components/parameters/LatitudeParam'
+      - $ref: '#/components/parameters/LongitudeParam'
+      responses:
+        '200':
+          description: Lista de casas de cambio con distancias calculadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                  - $ref: '#/components/schemas/Location'
+                  - type: object
+                    properties:
+                      distance:
+                        type: number
+                        description: Distancia en metros
+              examples:
+                nearby_locations:
+                  summary: Ubicaciones cercanas
+                  value:
+                  - name: La Favorita Centro
+                    address: Av. 18 de Julio 1234
+                    latitude: -34.9173
+                    longitude: -56.1501
+                    department: Montevideo
+                    distance: 1250.5
+                  - name: Banco República Centro
+                    address: 18 de Julio 1567
+                    latitude: -34.9058
+                    longitude: -56.1909
+                    department: Montevideo
+                    distance: 2100.8
+        '400':
+          description: Parámetros de ubicación faltantes o inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: getDistances
+      x-operation-id-source: derived
+  /localData:
+    get:
+      tags:
+      - Locations
+      summary: Obtener datos locales de casas de cambio
+      description: 'Retorna información detallada sobre las casas de cambio,
+
+        incluyendo ubicaciones, departamentos y datos de contacto.'
+      responses:
+        '200':
+          description: Datos locales obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nombre de la casa de cambio
+                    website:
+                      type: string
+                      description: Sitio web oficial
+                    departments:
+                      type: array
+                      items:
+                        type: string
+                      description: Departamentos donde opera
+              examples:
+                local_data:
+                  summary: Información de casas de cambio
+                  value:
+                    la_favorita:
+                      name: La Favorita
+                      website: https://www.lafavorita.com.uy
+                      departments:
+                      - Montevideo
+                      - Canelones
+                      - Maldonado
+                    brou:
+                      name: Banco República
+                      website: https://www.brou.com.uy
+                      departments:
+                      - Montevideo
+                      - Canelones
+                      - San José
+      operationId: getLocalData
+      x-operation-id-source: derived
+  /exchanges/{origin}:
+    get:
+      tags:
+      - Locations
+      summary: Obtener sucursales de una casa de cambio
+      description: 'Retorna las sucursales de una casa de cambio específica.
+
+        Opcionalmente filtrado por ubicación.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      - $ref: '#/components/parameters/LatitudeParam'
+      - $ref: '#/components/parameters/LongitudeParam'
+      responses:
+        '200':
+          description: Lista de sucursales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getExchangesByOrigin
+      x-operation-id-source: derived
+  /exchanges/{origin}/{location}:
+    get:
+      tags:
+      - Locations
+      summary: Obtener sucursales por casa de cambio y ubicación
+      description: 'Retorna las sucursales de una casa de cambio en una ubicación específica.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.
+
+        Para obtener la lista de ubicaciones válidas, use `/parameters/locations`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      - $ref: '#/components/parameters/LocationParam'
+      - $ref: '#/components/parameters/LatitudeParam'
+      - $ref: '#/components/parameters/LongitudeParam'
+      responses:
+        '200':
+          description: Lista de sucursales filtrada por ubicación
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getExchangesByOriginByLocation
+      x-operation-id-source: derived
+components:
+  parameters:
+    LongitudeParam:
+      name: longitude
+      in: query
+      description: Longitud geográfica para calcular distancias
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
+        example: -56.1501
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    LatitudeParam:
+      name: latitude
+      in: query
+      description: Latitud geográfica para calcular distancias
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+        example: -34.9173
+    LocationParam:
+      name: location
+      in: path
+      description: Ubicación o departamento. Para obtener valores válidos, consulte /parameters/locations
+      required: true
+      schema:
+        type: string
+        example: Montevideo
+      x-parameter-type: location
+  schemas:
+    Location:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nombre de la sucursal
+          example: Cambio Maiorano Centro
+        address:
+          type: string
+          description: Dirección de la sucursal
+          example: Av. 18 de Julio 1234
+        latitude:
+          type: number
+          format: float
+          description: Latitud geográfica
+          example: -34.9173
+        longitude:
+          type: number
+          format: float
+          description: Longitud geográfica
+          example: -56.1501
+        department:
+          type: string
+          description: Departamento de Uruguay
+          example: Montevideo
+        city:
+          type: string
+          description: Ciudad
+          example: Montevideo
+        distance:
+          type: number
+          format: float
+          description: Distancia en metros (solo si se proporciona ubicación)
+          example: 1250.5
+      required:
+      - name
+      - address
+      - latitude
+      - longitude
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
+  responses:
+    ValidationError:
+      description: Error de validación de parámetros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          examples:
+            invalid_origin:
+              summary: Casa de cambio inválida
+              value:
+                error: Invalid origin parameter
+                parameter: origin
+                value: invalid_exchange
+                validValues:
+                - la_favorita
+                - cambio_minas
+                - brou
+                - cambio_regul
+                - itau
+                - oca
+                - prex
+                - santander
+                - bcu
+                - cambilex
+                suggestion: Use /parameters/origins to get all valid origins
+            invalid_currency:
+              summary: Moneda inválida
+              value:
+                error: Invalid currency code
+                parameter: code
+                value: INVALID
+                validValues:
+                - USD
+                - EUR
+                - ARS
+                - BRL
+                - XAU
+                - UR
+                - UP
+                - UI
+                - PYG
+                - PEN
+                - MXN
+                - JPY
+                - GBP
+                - COP
+                - CLP
+                - CHF
+                - CAD
+                - AUD
+                suggestion: Use /parameters/currencies to get all valid currency codes

@@ -1,0 +1,212 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay BCU API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: BCU
+  description: Endpoints para datos del Banco Central del Uruguay
+paths:
+  /bcu:
+    get:
+      tags:
+      - BCU
+      summary: Obtener datos del Banco Central del Uruguay
+      description: 'Retorna los tipos de cambio oficiales del Banco Central del Uruguay (BCU).
+
+        Incluye cotizaciones oficiales para diferentes monedas.'
+      responses:
+        '200':
+          description: Datos del BCU obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExchangeData'
+              examples:
+                bcu_data:
+                  summary: Datos oficiales del BCU
+                  value:
+                  - origin: bcu
+                    code: USD
+                    type: INTERBANCARIO
+                    buy: 40.25
+                    sell: 40.75
+                    date: '2024-08-09T12:00:00.000Z'
+                    isInterBank: true
+      operationId: getBcu
+      x-operation-id-source: derived
+  /bcu/{origin}:
+    get:
+      tags:
+      - BCU
+      summary: Obtener detalles BCU por casa de cambio
+      description: 'Retorna información detallada del BCU para una casa de cambio específica.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      responses:
+        '200':
+          description: Detalles BCU obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  origin:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExchangeData'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getBcuByOrigin
+      x-operation-id-source: derived
+components:
+  schemas:
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
+    ExchangeData:
+      type: object
+      properties:
+        origin:
+          type: string
+          description: Nombre de la casa de cambio
+          example: la_favorita
+        code:
+          type: string
+          description: Código de la moneda (ISO 4217)
+          example: USD
+        type:
+          type: string
+          description: Tipo de cambio (BILLETE, CABLE, etc.)
+          example: ''
+        buy:
+          type: number
+          format: float
+          description: Precio de compra
+          example: 38.75
+        sell:
+          type: number
+          format: float
+          description: Precio de venta
+          example: 41.15
+        date:
+          type: string
+          format: date-time
+          description: Fecha y hora de la cotización
+          example: '2025-08-09T03:00:00.000Z'
+        name:
+          type: string
+          description: Nombre descriptivo de la moneda
+          example: Dólar Estadounidense
+      required:
+      - origin
+      - code
+      - buy
+      - sell
+      - date
+  parameters:
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+  responses:
+    ValidationError:
+      description: Error de validación de parámetros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          examples:
+            invalid_origin:
+              summary: Casa de cambio inválida
+              value:
+                error: Invalid origin parameter
+                parameter: origin
+                value: invalid_exchange
+                validValues:
+                - la_favorita
+                - cambio_minas
+                - brou
+                - cambio_regul
+                - itau
+                - oca
+                - prex
+                - santander
+                - bcu
+                - cambilex
+                suggestion: Use /parameters/origins to get all valid origins
+            invalid_currency:
+              summary: Moneda inválida
+              value:
+                error: Invalid currency code
+                parameter: code
+                value: INVALID
+                validValues:
+                - USD
+                - EUR
+                - ARS
+                - BRL
+                - XAU
+                - UR
+                - UP
+                - UI
+                - PYG
+                - PEN
+                - MXN
+                - JPY
+                - GBP
+                - COP
+                - CLP
+                - CHF
+                - CAD
+                - AUD
+                suggestion: Use /parameters/currencies to get all valid currency codes

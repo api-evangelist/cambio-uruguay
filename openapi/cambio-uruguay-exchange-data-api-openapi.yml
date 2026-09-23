@@ -1,0 +1,562 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Exchange Data API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Exchange Data
+  description: Endpoints para obtener datos de tipos de cambio
+paths:
+  /:
+    get:
+      tags:
+      - Exchange Data
+      summary: Obtener todos los tipos de cambio
+      description: 'Retorna todos los tipos de cambio disponibles para la fecha especificada.
+
+        Si no se especifica fecha, retorna los tipos de cambio más recientes.
+
+
+        Los datos incluyen información de múltiples casas de cambio en Uruguay,
+
+        con precios de compra y venta para diferentes monedas.'
+      parameters:
+      - $ref: '#/components/parameters/DateParam'
+      responses:
+        '200':
+          description: Lista de tipos de cambio exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExchangeData'
+              examples:
+                success:
+                  summary: Respuesta exitosa
+                  value:
+                  - origin: la_favorita
+                    code: USD
+                    type: ''
+                    buy: 38.75
+                    sell: 41.15
+                    date: '2025-08-09T03:00:00.000Z'
+                    name: Dólar Estadounidense
+                  - origin: brou
+                    code: EUR
+                    type: ''
+                    buy: 44.07
+                    sell: 49.45
+                    date: '2025-08-09T03:00:00.000Z'
+                    name: Euro
+        '500':
+          $ref: '#/components/responses/InternalError'
+      operationId: getRoot
+      x-operation-id-source: derived
+  /exchange/{origin}:
+    get:
+      tags:
+      - Exchange Data
+      summary: Obtener tipo de cambio específico por casa de cambio
+      description: 'Retorna los tipos de cambio de una casa de cambio específica.
+
+        Opcionalmente se puede filtrar por código de moneda.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      - $ref: '#/components/parameters/DateParam'
+      responses:
+        '200':
+          description: Tipos de cambio de la casa especificada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExchangeData'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: getExchangeByOrigin
+      x-operation-id-source: derived
+  /exchange/{origin}/{code}:
+    get:
+      tags:
+      - Exchange Data
+      summary: Obtener tipo de cambio específico por casa y moneda
+      description: 'Retorna el tipo de cambio de una moneda específica en una casa de cambio.
+
+
+        Para obtener la lista de casas de cambio válidas, use `/parameters/origins`.
+
+        Para obtener la lista de monedas válidas, use `/parameters/currencies`.'
+      parameters:
+      - $ref: '#/components/parameters/OriginParam'
+      - $ref: '#/components/parameters/CurrencyCodeParam'
+      - $ref: '#/components/parameters/DateParam'
+      responses:
+        '200':
+          description: Tipo de cambio específico encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeData'
+              examples:
+                found:
+                  summary: Tipo de cambio encontrado
+                  value:
+                    origin: la_favorita
+                    code: USD
+                    type: ''
+                    buy: 38.75
+                    sell: 41.15
+                    date: '2025-08-09T03:00:00.000Z'
+                    name: Dólar Estadounidense
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Tipo de cambio no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  origin:
+                    type: string
+                  code:
+                    type: string
+                  error:
+                    type: string
+              example:
+                origin: la_favorita
+                code: USD
+                error: not found
+      operationId: getExchangeByOriginByCode
+      x-operation-id-source: derived
+  /preferential-rates:
+    get:
+      tags:
+      - Exchange Data
+      summary: Cotizaciones preferenciales por proveedor y monto
+      description: 'Contrato común para bancos, fintech y plataformas que publican distintas
+
+        cotizaciones según el monto. Devuelve la captura vigente y una captura por
+
+        día calendario de Uruguay. Actualmente incluye Santander; nuevos proveedores
+
+        se agregan mediante adaptadores sin cambiar el contrato.
+
+
+        `minAmount` es inclusivo, `maxAmount` es exclusivo y `null` significa que
+
+        no existe límite superior. Al enviar `currency` y `amount`, cada captura
+
+        incluye `selectedRate` con la franja aplicable. Las credenciales y sesiones
+
+        usadas para consultar fuentes autenticadas nunca forman parte de la respuesta.'
+      parameters:
+      - name: provider
+        in: query
+        required: false
+        description: Limita el resultado a un proveedor registrado.
+        schema:
+          type: string
+          enum:
+          - santander
+          example: santander
+      - name: currency
+        in: query
+        required: false
+        description: Código ISO 4217 de tres letras.
+        schema:
+          type: string
+          pattern: ^[A-Za-z]{3}$
+          example: USD
+      - name: amount
+        in: query
+        required: false
+        description: Monto en la moneda consultada. Requiere enviar currency.
+        schema:
+          type: number
+          minimum: 0
+          example: 5000
+      responses:
+        '200':
+          description: Catálogo de tasas por monto y su histórico diario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currency:
+                    type:
+                    - string
+                    - 'null'
+                    example: USD
+                  amount:
+                    type:
+                    - number
+                    - 'null'
+                    example: 5000
+                  providerCount:
+                    type: integer
+                    example: 1
+                  updatedAt:
+                    type: string
+                    format: date-time
+                  providers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        provider:
+                          type: string
+                          example: santander
+                        displayName:
+                          type: string
+                          example: Santander
+                        source:
+                          type: string
+                          format: uri
+                        requiresAuthentication:
+                          type: boolean
+                          example: true
+                        currencies:
+                          type: array
+                          items:
+                            type: string
+                        boundaryRule:
+                          type: string
+                        current:
+                          type:
+                          - object
+                          - 'null'
+                          properties:
+                            date:
+                              type: string
+                              format: date
+                            scrapedAt:
+                              type: string
+                              format: date-time
+                            rates:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  currency:
+                                    type: string
+                                    example: USD
+                                  buy:
+                                    type: number
+                                    example: 39.4
+                                  sell:
+                                    type: number
+                                    example: 40.95
+                                  minAmount:
+                                    type: number
+                                    example: 1001
+                                  maxAmount:
+                                    type:
+                                    - number
+                                    - 'null'
+                                    example: 10000
+                            selectedRate:
+                              type:
+                              - object
+                              - 'null'
+                        history:
+                          type: array
+                          items:
+                            type: object
+                        updatedAt:
+                          type: string
+                          format: date-time
+        '400':
+          description: Proveedor, moneda o monto inválido
+      operationId: getPreferentialRates
+      x-operation-id-source: derived
+  /santander/preferential-rates:
+    get:
+      tags:
+      - Exchange Data
+      summary: Cotizaciones preferenciales de Santander por monto
+      description: 'Devuelve las franjas de compra y venta que Santander muestra dentro de Supernet,
+
+        junto con una fotografía por día calendario de Uruguay. La sincronización normal
+
+        de cotizaciones actualiza la entrada del día sin duplicarla; una falla nunca borra
+
+        el último dato válido.
+
+
+        `minAmount` es inclusivo, `maxAmount` es exclusivo y `null` representa una franja
+
+        sin límite superior. Si se envía `amount`, el endpoint agrega `selectedRate` para
+
+        ese monto en la cotización vigente y en cada punto histórico. Cuando `amount` se
+
+        envía sin `currency`, se usa USD.'
+      parameters:
+      - name: currency
+        in: query
+        required: false
+        description: Código ISO de tres letras. Si se omite, se devuelven todas las monedas.
+        schema:
+          type: string
+          pattern: ^[A-Za-z]{3}$
+          example: USD
+      - name: amount
+        in: query
+        required: false
+        description: Monto en la moneda consultada usado para elegir la franja.
+        schema:
+          type: number
+          minimum: 0
+          example: 5000
+      responses:
+        '200':
+          description: Tasas vigentes e histórico diario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bank:
+                    type: string
+                    example: santander
+                  source:
+                    type: string
+                  currency:
+                    type:
+                    - string
+                    - 'null'
+                  amount:
+                    type:
+                    - number
+                    - 'null'
+                  currencies:
+                    type: array
+                    items:
+                      type: string
+                  boundaryRule:
+                    type: string
+                  current:
+                    type:
+                    - object
+                    - 'null'
+                  history:
+                    type: array
+                    items:
+                      type: object
+                  updatedAt:
+                    type: string
+        '400':
+          description: Moneda o monto inválido
+      operationId: getSantanderPreferentialRates
+      x-operation-id-source: derived
+  /fortex:
+    get:
+      tags:
+      - Exchange Data
+      summary: Obtener datos de Fortex
+      description: 'Retorna los tipos de cambio de Fortex para el día actual.
+
+        Fortex es una plataforma de intercambio de divisas.'
+      responses:
+        '200':
+          description: Datos de Fortex obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExchangeData'
+      operationId: getFortex
+      x-operation-id-source: derived
+components:
+  parameters:
+    CurrencyCodeParam:
+      name: code
+      in: path
+      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Z]{3}$
+        example: USD
+      x-parameter-type: currency
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    DateParam:
+      name: date
+      in: query
+      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2025-08-09'
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
+    ExchangeData:
+      type: object
+      properties:
+        origin:
+          type: string
+          description: Nombre de la casa de cambio
+          example: la_favorita
+        code:
+          type: string
+          description: Código de la moneda (ISO 4217)
+          example: USD
+        type:
+          type: string
+          description: Tipo de cambio (BILLETE, CABLE, etc.)
+          example: ''
+        buy:
+          type: number
+          format: float
+          description: Precio de compra
+          example: 38.75
+        sell:
+          type: number
+          format: float
+          description: Precio de venta
+          example: 41.15
+        date:
+          type: string
+          format: date-time
+          description: Fecha y hora de la cotización
+          example: '2025-08-09T03:00:00.000Z'
+        name:
+          type: string
+          description: Nombre descriptivo de la moneda
+          example: Dólar Estadounidense
+      required:
+      - origin
+      - code
+      - buy
+      - sell
+      - date
+  responses:
+    ValidationError:
+      description: Error de validación de parámetros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          examples:
+            invalid_origin:
+              summary: Casa de cambio inválida
+              value:
+                error: Invalid origin parameter
+                parameter: origin
+                value: invalid_exchange
+                validValues:
+                - la_favorita
+                - cambio_minas
+                - brou
+                - cambio_regul
+                - itau
+                - oca
+                - prex
+                - santander
+                - bcu
+                - cambilex
+                suggestion: Use /parameters/origins to get all valid origins
+            invalid_currency:
+              summary: Moneda inválida
+              value:
+                error: Invalid currency code
+                parameter: code
+                value: INVALID
+                validValues:
+                - USD
+                - EUR
+                - ARS
+                - BRL
+                - XAU
+                - UR
+                - UP
+                - UI
+                - PYG
+                - PEN
+                - MXN
+                - JPY
+                - GBP
+                - COP
+                - CLP
+                - CHF
+                - CAD
+                - AUD
+                suggestion: Use /parameters/currencies to get all valid currency codes
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

@@ -1,0 +1,182 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay AI Insights API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: AI Insights
+  description: Endpoints de inteligencia artificial para análisis de mercado y generación de insights
+paths:
+  /ai/insights:
+    post:
+      tags:
+      - AI Insights
+      summary: Obtener análisis de mercado con IA
+      description: 'Genera análisis e insights del mercado de cambios uruguayo usando inteligencia artificial.
+
+
+        Tipos de análisis disponibles:
+
+        - **market_summary**: Resumen general del estado del mercado
+
+        - **currency_analysis**: Análisis detallado de una moneda específica
+
+        - **best_rates**: Mejores oportunidades de compra/venta
+
+        - **trend_analysis**: Análisis de tendencias históricas
+
+        - **custom**: Pregunta personalizada sobre el mercado
+
+
+        Las respuestas se generan en el idioma solicitado (es, en, pt) y se cachean por 10 minutos.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - type
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - market_summary
+                  - currency_analysis
+                  - best_rates
+                  - trend_analysis
+                  - custom
+                  description: Tipo de análisis a generar
+                language:
+                  type: string
+                  enum:
+                  - es
+                  - en
+                  - pt
+                  default: es
+                  description: Idioma de la respuesta
+                currency:
+                  type: string
+                  description: Código de moneda para análisis específico (ej. USD, EUR)
+                origin:
+                  type: string
+                  description: Casa de cambio para análisis específico
+                customPrompt:
+                  type: string
+                  description: Pregunta personalizada (solo para type=custom)
+            examples:
+              market_summary:
+                summary: Resumen del mercado
+                value:
+                  type: market_summary
+                  language: es
+              currency_analysis:
+                summary: Análisis de USD
+                value:
+                  type: currency_analysis
+                  language: es
+                  currency: USD
+              custom:
+                summary: Pregunta personalizada
+                value:
+                  type: custom
+                  language: es
+                  customPrompt: ¿Cuál es la mejor casa de cambio para comprar dólares hoy?
+      responses:
+        '200':
+          description: Análisis generado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIInsightResponse'
+        '400':
+          description: Parámetros inválidos
+        '503':
+          description: Servicio de IA no configurado
+      operationId: postAiInsights
+      x-operation-id-source: derived
+  /ai/status:
+    get:
+      tags:
+      - AI Insights
+      summary: Estado del servicio de IA
+      description: Verifica si el servicio de inteligencia artificial está configurado y disponible.
+      responses:
+        '200':
+          description: Estado del servicio de IA
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configured:
+                    type: boolean
+                  model:
+                    type: string
+                  availableTypes:
+                    type: array
+                    items:
+                      type: string
+                  supportedLanguages:
+                    type: array
+                    items:
+                      type: string
+      operationId: getAiStatus
+      x-operation-id-source: derived
+components:
+  schemas:
+    AIInsightResponse:
+      type: object
+      properties:
+        insight:
+          type: string
+          description: Análisis generado por IA en formato Markdown
+          example: '## 📊 Resumen del Mercado
+
+
+            El dólar se cotiza hoy entre...'
+        type:
+          type: string
+          enum:
+          - market_summary
+          - currency_analysis
+          - best_rates
+          - trend_analysis
+          - custom
+          description: Tipo de análisis generado
+        timestamp:
+          type: string
+          format: date-time
+          description: Momento en que se generó el análisis
+        language:
+          type: string
+          enum:
+          - es
+          - en
+          - pt
+          description: Idioma del análisis
+        cached:
+          type: boolean
+          description: Si la respuesta provino de la caché
+      required:
+      - insight
+      - type
+      - timestamp
+      - language
+      - cached

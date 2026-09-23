@@ -1,0 +1,563 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Regional API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Regional
+  description: 'Cotizaciones de la región: el dólar y los cruces en Argentina, Brasil, Paraguay, Chile, Bolivia y Uruguay, con series diarias y comparación de rutas'
+paths:
+  /regional:
+    get:
+      tags:
+      - Regional
+      summary: Tablero de cotizaciones de la región (AR, BR, PY, CL, BO, UY)
+      description: 'Una foto del dólar en los seis países, con TODOS los mercados que cada
+
+        uno publica: los siete dólares argentinos (oficial, blue, MEP, CCL,
+
+        mayorista, cripto y tarjeta), el fixing PTAX y el dólar turismo
+
+        brasileños, el referencial y la planilla del Banco Central del
+
+        Paraguay, el dólar observado chileno, el oficial y el paralelo
+
+        bolivianos, y el mejor precio entre las casas de cambio uruguayas.
+
+
+        Además de las cotizaciones crudas devuelve lo derivado: la brecha
+
+        entre el precio oficial y el que se consigue en cada país, la matriz
+
+        de cruces regionales implícitos por el dólar, y la comparación de
+
+        rutas ("comprar la moneda acá" contra "llevar dólares y cambiarlos
+
+        allá") para cada vecino.
+
+
+        Cada cotización dice de qué fuente salió, cuándo la fijó esa fuente,
+
+        qué tipo de precio es (`official`, `parallel`, `retail`, ...) y qué
+
+        otras fuentes publicaron ese mismo mercado (`corroboratedBy`) con la
+
+        diferencia máxima entre ellas (`disagreementPct`). `rejected` lista lo
+
+        que el validador descartó y por qué.
+
+
+        Se actualiza cada 20 minutos. Endpoint público, sin autenticación.'
+      responses:
+        '200':
+          description: Snapshot regional completo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  generatedAt:
+                    type: string
+                    format: date-time
+                  oldestQuoteAt:
+                    type:
+                    - string
+                    - 'null'
+                    format: date-time
+                  quotes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: AR:blue:USDARS
+                        country:
+                          type: string
+                          enum:
+                          - AR
+                          - BR
+                          - CL
+                          - PY
+                          - BO
+                          - UY
+                        market:
+                          type: string
+                          example: blue
+                        label:
+                          type: string
+                          example: Dólar blue
+                        kind:
+                          type: string
+                          enum:
+                          - official
+                          - wholesale
+                          - parallel
+                          - financial
+                          - card
+                          - retail
+                          - reference
+                        base:
+                          type: string
+                          example: USD
+                        quote:
+                          type: string
+                          example: ARS
+                        buy:
+                          type:
+                          - number
+                          - 'null'
+                        sell:
+                          type:
+                          - number
+                          - 'null'
+                        avg:
+                          type: number
+                        spreadPct:
+                          type:
+                          - number
+                          - 'null'
+                        variationPct:
+                          type:
+                          - number
+                          - 'null'
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        source:
+                          type: string
+                          example: ar_bluelytics
+                        sourceUrl:
+                          type: string
+                        corroboratedBy:
+                          type: array
+                          items:
+                            type: string
+                        disagreementPct:
+                          type:
+                          - number
+                          - 'null'
+                  board:
+                    type: array
+                    items:
+                      type: object
+                  gaps:
+                    type: array
+                    items:
+                      type: object
+                  cross:
+                    type: array
+                    items:
+                      type: object
+                  routes:
+                    type: array
+                    items:
+                      type: object
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                  rejected:
+                    type: array
+                    items:
+                      type: object
+      operationId: getRegional
+      x-operation-id-source: derived
+  /regional/sources:
+    get:
+      tags:
+      - Regional
+      summary: Las fuentes del tablero regional, con el estado de cada una
+      description: 'Quién publica cada número, con qué acceso (API documentada o scraping
+
+        de HTML), qué aporta que no aporte ninguna otra — y **cómo le fue en la
+
+        última corrida**: si respondió, cuánto tardó, qué mercados terminó
+
+        publicando, en cuáles quedó como corroboración de otra, qué se le
+
+        descartó y con qué motivo.
+
+
+        Los feeds mundiales traen `country: null` y `scope: "global"`: no
+
+        describen a un país en particular y ponerles uno era engañoso.
+
+
+        `summary.singleSourceMarkets` es el número que importa vigilar: son los
+
+        mercados que hoy dependen de una sola lectura.'
+      responses:
+        '200':
+          description: Catálogo y estado de las fuentes
+      operationId: getRegionalSources
+      x-operation-id-source: derived
+  /regional/sources/{id}:
+    get:
+      tags:
+      - Regional
+      summary: Una sola fuente, con todo lo que se sabe de ella
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: py_bcp
+      responses:
+        '200':
+          description: Ficha de la fuente
+        '404':
+          description: No existe una fuente con ese id
+      operationId: getRegionalSourcesById
+      x-operation-id-source: derived
+  /regional/changes:
+    get:
+      tags:
+      - Regional
+      summary: Cada movimiento de precio del tablero regional
+      description: 'Una fila por cada vez que un precio cambió, **sin umbral mínimo**: un
+
+        guaraní, un centavo de real o una diezmilésima de peso entran igual.
+
+
+        Es la otra mitad de `/regional/history`: la fila diaria guarda el
+
+        cierre y se sobrescribe en cada corrida, así que lo que pasa adentro de
+
+        un día sólo existe acá.
+
+
+        La RESOLUCIÓN es la del trabajo que lo alimenta: se ve lo que hay
+
+        cuando se mira, cada diez minutos. Dos movimientos dentro de la misma
+
+        ventana quedan registrados como uno, del primer valor al último; por
+
+        eso cada fila trae `observedAt` (cuándo lo vimos), `sourceUpdatedAt`
+
+        (cuándo dice la fuente que se fijó) y `sinceMinutes` (cuánto pasó desde
+
+        la lectura anterior de ese mercado).'
+      parameters:
+      - name: key
+        in: query
+        schema:
+          type: string
+          example: AR:blue:USDARS
+        description: Clave exacta del mercado
+      - name: country
+        in: query
+        schema:
+          type: string
+          enum:
+          - AR
+          - BR
+          - CL
+          - PY
+          - BO
+          - UY
+      - name: market
+        in: query
+        schema:
+          type: string
+          example: blue
+      - name: base
+        in: query
+        schema:
+          type: string
+          example: USD
+      - name: quote
+        in: query
+        schema:
+          type: string
+          example: ARS
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 5000
+          default: 500
+      responses:
+        '200':
+          description: Movimientos, del más nuevo al más viejo
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getRegionalChanges
+      x-operation-id-source: derived
+  /regional/series:
+    get:
+      tags:
+      - Regional
+      summary: Qué series históricas existen y desde cuándo
+      description: 'Una fila por serie almacenada, con la cantidad de días y el rango de
+
+        fechas. Las argentinas arrancan en 2011 y la brasileña antes; las que
+
+        ningún tercero publica (Paraguay, Bolivia, el tablero uruguayo)
+
+        arrancan el día que este trabajo corrió por primera vez.'
+      responses:
+        '200':
+          description: Catálogo de series
+      operationId: getRegionalSeries
+      x-operation-id-source: derived
+  /regional/history:
+    get:
+      tags:
+      - Regional
+      summary: Serie diaria de un mercado regional
+      description: 'Devuelve un punto por día (cierre) filtrando por país, mercado y par.
+
+        Las series con historia propia del publicador llegan hasta 2011
+
+        (dólares argentinos) o antes (PTAX brasileño); el resto empieza el día
+
+        que este tablero se publicó.
+
+
+        Sin filtros devuelve TODAS las series mezcladas, lo cual casi nunca es
+
+        lo que se quiere: filtrar por `country` + `market` es lo habitual.'
+      parameters:
+      - name: country
+        in: query
+        schema:
+          type: string
+          enum:
+          - AR
+          - BR
+          - CL
+          - PY
+          - BO
+          - UY
+      - name: market
+        in: query
+        schema:
+          type: string
+          example: blue
+      - name: base
+        in: query
+        schema:
+          type: string
+          example: USD
+      - name: quote
+        in: query
+        schema:
+          type: string
+          example: ARS
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date
+          example: '2024-01-01'
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20000
+          default: 5000
+      responses:
+        '200':
+          description: Puntos diarios en orden cronológico
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getRegionalHistory
+      x-operation-id-source: derived
+  /regional/compare:
+    get:
+      tags:
+      - Regional
+      summary: ¿Compro la moneda acá o llevo dólares?
+      description: 'Para cada vecino compara dos rutas con precios reales: comprar la
+
+        moneda en una casa de cambio uruguaya, o comprar dólares acá y
+
+        cambiarlos allá. Devuelve el costo de una unidad por cada ruta, cuál
+
+        gana y por cuánto.
+
+
+        Con `amount` devuelve además cuánto sale esa cantidad por cada ruta.'
+      parameters:
+      - name: currency
+        in: query
+        schema:
+          type: string
+          example: ARS
+        description: Limitar a una moneda (ARS, BRL, PYG, CLP, BOB).
+      - name: amount
+        in: query
+        schema:
+          type: number
+          example: 10000
+        description: Cantidad de moneda extranjera a costear.
+      responses:
+        '200':
+          description: Comparación de rutas
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      operationId: getRegionalCompare
+      x-operation-id-source: derived
+  /regional/convert:
+    get:
+      tags:
+      - Regional
+      summary: Convertir entre monedas de la región, pasando por el dólar
+      description: 'El dólar es el pivote porque es la única moneda que los seis países
+
+        cotizan directamente. `market` fija el mercado del lado de origen: la
+
+        diferencia entre convertir pesos argentinos al oficial y al blue es
+
+        justamente el sentido del parámetro.
+
+
+        La respuesta incluye `legs`, los identificadores de las cotizaciones
+
+        usadas, para que cualquier resultado se pueda rehacer a mano.'
+      parameters:
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          example: ARS
+      - name: to
+        in: query
+        required: true
+        schema:
+          type: string
+          example: UYU
+      - name: amount
+        in: query
+        schema:
+          type: number
+          default: 1
+      - name: market
+        in: query
+        schema:
+          type: string
+          example: blue
+        description: Mercado del lado de origen (blue, oficial, ptax, turismo, ...).
+      responses:
+        '200':
+          description: Resultado de la conversión con las cotizaciones usadas
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: No hay cotizaciones para ese par
+      operationId: getRegionalConvert
+      x-operation-id-source: derived
+components:
+  schemas:
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
+  responses:
+    ValidationError:
+      description: Error de validación de parámetros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          examples:
+            invalid_origin:
+              summary: Casa de cambio inválida
+              value:
+                error: Invalid origin parameter
+                parameter: origin
+                value: invalid_exchange
+                validValues:
+                - la_favorita
+                - cambio_minas
+                - brou
+                - cambio_regul
+                - itau
+                - oca
+                - prex
+                - santander
+                - bcu
+                - cambilex
+                suggestion: Use /parameters/origins to get all valid origins
+            invalid_currency:
+              summary: Moneda inválida
+              value:
+                error: Invalid currency code
+                parameter: code
+                value: INVALID
+                validValues:
+                - USD
+                - EUR
+                - ARS
+                - BRL
+                - XAU
+                - UR
+                - UP
+                - UI
+                - PYG
+                - PEN
+                - MXN
+                - JPY
+                - GBP
+                - COP
+                - CLP
+                - CHF
+                - CAD
+                - AUD
+                suggestion: Use /parameters/currencies to get all valid currency codes

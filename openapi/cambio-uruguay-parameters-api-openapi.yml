@@ -1,0 +1,287 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Parameters API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Parameters
+  description: Endpoints para obtener parámetros válidos del sistema
+paths:
+  /parameters/origins:
+    get:
+      tags:
+      - Parameters
+      summary: Obtener todas las casas de cambio disponibles
+      description: 'Retorna la lista completa de todas las casas de cambio (origins) disponibles
+
+        en el sistema. Útil para validar parámetros y construir interfaces de usuario.'
+      responses:
+        '200':
+          description: Lista de casas de cambio disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  origins:
+                    type: array
+                    items:
+                      type: string
+                    description: Lista de nombres de casas de cambio
+                  count:
+                    type: integer
+                    description: Número total de casas de cambio
+              examples:
+                success:
+                  summary: Casas de cambio disponibles
+                  value:
+                    origins:
+                    - la_favorita
+                    - cambio_minas
+                    - brou
+                    - cambio_regul
+                    - itau
+                    - oca
+                    - prex
+                    - santander
+                    - bcu
+                    - cambilex
+                    count: 45
+      operationId: getParametersOrigins
+      x-operation-id-source: derived
+  /parameters/currencies:
+    get:
+      tags:
+      - Parameters
+      summary: Obtener todas las monedas disponibles
+      description: 'Retorna la lista de todas las monedas (currency codes) disponibles
+
+        en el sistema, obtenidas de los datos actuales.'
+      parameters:
+      - $ref: '#/components/parameters/DateParam'
+      responses:
+        '200':
+          description: Lista de monedas disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currencies:
+                    type: array
+                    items:
+                      type: string
+                    description: Lista de códigos de moneda (ISO 4217)
+                  count:
+                    type: integer
+                    description: Número total de monedas
+              examples:
+                success:
+                  summary: Monedas disponibles
+                  value:
+                    currencies:
+                    - USD
+                    - EUR
+                    - ARS
+                    - BRL
+                    count: 4
+      operationId: getParametersCurrencies
+      x-operation-id-source: derived
+  /parameters/types:
+    get:
+      tags:
+      - Parameters
+      summary: Obtener todos los tipos de cambio disponibles
+      description: 'Retorna la lista de todos los tipos de cambio disponibles
+
+        (BILLETE, CABLE, TRANSFERENCIA, etc.) en el sistema.'
+      parameters:
+      - $ref: '#/components/parameters/DateParam'
+      - name: origin
+        in: query
+        description: Filtrar por casa de cambio específica
+        required: false
+        schema:
+          type: string
+      - name: code
+        in: query
+        description: Filtrar por moneda específica
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Lista de tipos de cambio disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  types:
+                    type: array
+                    items:
+                      type: string
+                    description: Lista de tipos de cambio
+                  count:
+                    type: integer
+                    description: Número total de tipos
+              examples:
+                success:
+                  summary: Tipos disponibles
+                  value:
+                    types:
+                    - BILLETE
+                    - CABLE
+                    - TRANSFERENCIA
+                    count: 3
+      operationId: getParametersTypes
+      x-operation-id-source: derived
+  /parameters/locations:
+    get:
+      tags:
+      - Parameters
+      summary: Obtener todas las ubicaciones disponibles
+      description: 'Retorna la lista de todas las ubicaciones/departamentos disponibles
+
+        para buscar sucursales de casas de cambio.'
+      parameters:
+      - name: origin
+        in: query
+        description: Filtrar por casa de cambio específica
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Lista de ubicaciones disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locations:
+                    type: array
+                    items:
+                      type: string
+                    description: Lista de departamentos/ubicaciones
+                  count:
+                    type: integer
+                    description: Número total de ubicaciones
+              examples:
+                success:
+                  summary: Ubicaciones disponibles
+                  value:
+                    locations:
+                    - Montevideo
+                    - Canelones
+                    - Maldonado
+                    count: 3
+      operationId: getParametersLocations
+      x-operation-id-source: derived
+  /parameters/all:
+    get:
+      tags:
+      - Parameters
+      summary: Obtener todos los parámetros disponibles
+      description: 'Retorna un objeto consolidado con todos los parámetros válidos
+
+        del sistema: origins, currencies, types y locations.'
+      parameters:
+      - $ref: '#/components/parameters/DateParam'
+      responses:
+        '200':
+          description: Todos los parámetros disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  origins:
+                    type: array
+                    items:
+                      type: string
+                  currencies:
+                    type: array
+                    items:
+                      type: string
+                  types:
+                    type: array
+                    items:
+                      type: string
+                  locations:
+                    type: array
+                    items:
+                      type: string
+                  counts:
+                    type: object
+                    properties:
+                      origins:
+                        type: integer
+                      currencies:
+                        type: integer
+                      types:
+                        type: integer
+                      locations:
+                        type: integer
+              examples:
+                success:
+                  summary: Todos los parámetros
+                  value:
+                    origins:
+                    - la_favorita
+                    - brou
+                    - cambio_minas
+                    - itau
+                    - oca
+                    - prex
+                    - santander
+                    currencies:
+                    - USD
+                    - EUR
+                    - ARS
+                    - BRL
+                    - XAU
+                    - UI
+                    types:
+                    - ''
+                    - BILLETE
+                    - CABLE
+                    - INTERBANCARIO
+                    locations:
+                    - Montevideo
+                    - Canelones
+                    - Maldonado
+                    counts:
+                      origins: 42
+                      currencies: 18
+                      types: 8
+                      locations: 19
+      operationId: getParametersAll
+      x-operation-id-source: derived
+components:
+  parameters:
+    DateParam:
+      name: date
+      in: query
+      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2025-08-09'
