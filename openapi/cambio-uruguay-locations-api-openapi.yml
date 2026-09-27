@@ -180,48 +180,31 @@ paths:
       operationId: getExchangesByOriginByLocation
       x-operation-id-source: derived
 components:
-  parameters:
-    LongitudeParam:
-      name: longitude
-      in: query
-      description: Longitud geográfica para calcular distancias
-      required: false
-      schema:
-        type: number
-        format: float
-        minimum: -180
-        maximum: 180
-        example: -56.1501
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
-    LatitudeParam:
-      name: latitude
-      in: query
-      description: Latitud geográfica para calcular distancias
-      required: false
-      schema:
-        type: number
-        format: float
-        minimum: -90
-        maximum: 90
-        example: -34.9173
-    LocationParam:
-      name: location
-      in: path
-      description: Ubicación o departamento. Para obtener valores válidos, consulte /parameters/locations
-      required: true
-      schema:
-        type: string
-        example: Montevideo
-      x-parameter-type: location
   schemas:
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
     Location:
       type: object
       properties:
@@ -270,30 +253,6 @@ components:
           example: No results found
       required:
       - error
-    ValidationError:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error de validación
-        parameter:
-          type: string
-          description: Nombre del parámetro inválido
-        value:
-          type: string
-          description: Valor proporcionado que es inválido
-        validValues:
-          type: array
-          items:
-            type: string
-          description: Lista de valores válidos para este parámetro
-        suggestion:
-          type: string
-          description: Sugerencia para corregir el error
-      required:
-      - error
-      - parameter
-      - validValues
   responses:
     ValidationError:
       description: Error de validación de parámetros
@@ -346,3 +305,44 @@ components:
                 - CAD
                 - AUD
                 suggestion: Use /parameters/currencies to get all valid currency codes
+  parameters:
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    LocationParam:
+      name: location
+      in: path
+      description: Ubicación o departamento. Para obtener valores válidos, consulte /parameters/locations
+      required: true
+      schema:
+        type: string
+        example: Montevideo
+      x-parameter-type: location
+    LatitudeParam:
+      name: latitude
+      in: query
+      description: Latitud geográfica para calcular distancias
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+        example: -34.9173
+    LongitudeParam:
+      name: longitude
+      in: query
+      description: Longitud geográfica para calcular distancias
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
+        example: -56.1501

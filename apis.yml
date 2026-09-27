@@ -6,6 +6,23 @@ description: >-
   comparison, six-month historical series, branch locations with geocoding, BCU reference
   rates, and economic indicators, plus a hosted anonymous Streamable HTTP MCP server and an
   npx-runnable stdio package for AI agents. Open source (MIT) by Eduardo Airaudo.
+deliveryModel:
+  model: unknown
+  license_evidence:
+    repo: eduair94/cambio-uruguay
+    spdx: none
+    stars: 7
+  open_source: unknown
+  commercial: true
+  callable_host: true
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - openapi
+  - pricing
+  - repository-unlicensed
+  generated: '2026-09-25'
+  method: derived
 image: https://cambio-uruguay.com/__og-image__/image/og.png
 url: https://raw.githubusercontent.com/api-evangelist/cambio-uruguay/refs/heads/main/apis.yml
 created: '2026-09-07'
@@ -18,8 +35,8 @@ tags:
 - Uruguay
 - Latin America
 - MCP
-- agent-native
-- Open-Source
+- Agent-Native
+- Open Source
 tags_raw:
 - Currency
 - Exchange Rates
@@ -29,6 +46,7 @@ tags_raw:
 - MCP
 - agent-native
 - Open Source
+- Open-Source
 apis:
 - name: Cambio Uruguay MCP Server
   description: >-
@@ -40,6 +58,10 @@ apis:
   humanURL: https://github.com/eduair94/cambio-uruguay/tree/main/mcp
   baseURL: https://mcp.cambio-uruguay.com/mcp
   tags:
+  - MCP
+  - Agent-Native
+  - Currency
+  tags_raw:
   - MCP
   - agent-native
   - Currency

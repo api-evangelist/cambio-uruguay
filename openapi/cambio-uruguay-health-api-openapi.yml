@@ -264,20 +264,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    PingResponse:
-      type: object
-      properties:
-        expected:
-          type: boolean
-          description: Si la respuesta es la esperada (>= 100 registros)
-          example: true
-        total:
-          type: number
-          description: Cantidad total de registros devueltos
-          example: 150
-      required:
-      - expected
-      - total
     HealthResponse:
       type: object
       properties:
@@ -331,6 +317,20 @@ components:
       - status
       - message
       - timestamp
+    PingResponse:
+      type: object
+      properties:
+        expected:
+          type: boolean
+          description: Si la respuesta es la esperada (>= 100 registros)
+          example: true
+        total:
+          type: number
+          description: Cantidad total de registros devueltos
+          example: 150
+      required:
+      - expected
+      - total
   parameters:
     DateParam:
       name: date

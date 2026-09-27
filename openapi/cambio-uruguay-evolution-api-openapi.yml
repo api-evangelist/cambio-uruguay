@@ -264,6 +264,58 @@ paths:
       operationId: getEvolutionByOriginByCodeByType
       x-operation-id-source: derived
 components:
+  schemas:
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
+    CurrencyEvolution:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Fecha de la cotización
+          example: '2025-08-09'
+        buy:
+          type: number
+          format: float
+          description: Precio de compra
+          example: 38.75
+        sell:
+          type: number
+          format: float
+          description: Precio de venta
+          example: 41.15
+        avg:
+          type: number
+          format: float
+          description: Precio promedio
+          example: 39.95
+      required:
+      - date
+      - buy
+      - sell
   parameters:
     CurrencyCodeParam:
       name: code
@@ -275,15 +327,6 @@ components:
         pattern: ^[A-Z]{3}$
         example: USD
       x-parameter-type: currency
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
     ExchangeTypeParam:
       name: type
       in: path
@@ -293,6 +336,15 @@ components:
         type: string
         example: ''
       x-parameter-type: type
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
     PeriodParam:
       name: period
       in: query
@@ -356,55 +408,3 @@ components:
                 - CAD
                 - AUD
                 suggestion: Use /parameters/currencies to get all valid currency codes
-  schemas:
-    CurrencyEvolution:
-      type: object
-      properties:
-        date:
-          type: string
-          format: date
-          description: Fecha de la cotización
-          example: '2025-08-09'
-        buy:
-          type: number
-          format: float
-          description: Precio de compra
-          example: 38.75
-        sell:
-          type: number
-          format: float
-          description: Precio de venta
-          example: 41.15
-        avg:
-          type: number
-          format: float
-          description: Precio promedio
-          example: 39.95
-      required:
-      - date
-      - buy
-      - sell
-    ValidationError:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error de validación
-        parameter:
-          type: string
-          description: Nombre del parámetro inválido
-        value:
-          type: string
-          description: Valor proporcionado que es inválido
-        validValues:
-          type: array
-          items:
-            type: string
-          description: Lista de valores válidos para este parámetro
-        suggestion:
-          type: string
-          description: Sugerencia para corregir el error
-      required:
-      - error
-      - parameter
-      - validValues

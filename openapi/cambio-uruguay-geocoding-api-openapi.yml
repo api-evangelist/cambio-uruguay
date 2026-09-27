@@ -123,23 +123,7 @@ paths:
       operationId: getPositionStack
       x-operation-id-source: derived
 components:
-  responses:
-    BadRequest:
-      description: Solicitud incorrecta
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
   schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error
-          example: No results found
-      required:
-      - error
     GeocodeResponse:
       type: object
       properties:
@@ -169,3 +153,19 @@ components:
       - display_name
       - lat
       - lon
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

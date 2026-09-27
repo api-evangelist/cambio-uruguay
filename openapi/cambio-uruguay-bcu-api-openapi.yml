@@ -84,30 +84,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ValidationError:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error de validación
-        parameter:
-          type: string
-          description: Nombre del parámetro inválido
-        value:
-          type: string
-          description: Valor proporcionado que es inválido
-        validValues:
-          type: array
-          items:
-            type: string
-          description: Lista de valores válidos para este parámetro
-        suggestion:
-          type: string
-          description: Sugerencia para corregir el error
-      required:
-      - error
-      - parameter
-      - validValues
     ExchangeData:
       type: object
       properties:
@@ -148,6 +124,30 @@ components:
       - buy
       - sell
       - date
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error de validación
+        parameter:
+          type: string
+          description: Nombre del parámetro inválido
+        value:
+          type: string
+          description: Valor proporcionado que es inválido
+        validValues:
+          type: array
+          items:
+            type: string
+          description: Lista de valores válidos para este parámetro
+        suggestion:
+          type: string
+          description: Sugerencia para corregir el error
+      required:
+      - error
+      - parameter
+      - validValues
   parameters:
     OriginParam:
       name: origin
