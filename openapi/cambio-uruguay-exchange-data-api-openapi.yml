@@ -393,6 +393,99 @@ paths:
       operationId: getFortex
       x-operation-id-source: derived
 components:
+  parameters:
+    DateParam:
+      name: date
+      in: query
+      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2025-08-09'
+    CurrencyCodeParam:
+      name: code
+      in: path
+      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Z]{3}$
+        example: USD
+      x-parameter-type: currency
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+  responses:
+    ValidationError:
+      description: Error de validación de parámetros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          examples:
+            invalid_origin:
+              summary: Casa de cambio inválida
+              value:
+                error: Invalid origin parameter
+                parameter: origin
+                value: invalid_exchange
+                validValues:
+                - la_favorita
+                - cambio_minas
+                - brou
+                - cambio_regul
+                - itau
+                - oca
+                - prex
+                - santander
+                - bcu
+                - cambilex
+                suggestion: Use /parameters/origins to get all valid origins
+            invalid_currency:
+              summary: Moneda inválida
+              value:
+                error: Invalid currency code
+                parameter: code
+                value: INVALID
+                validValues:
+                - USD
+                - EUR
+                - ARS
+                - BRL
+                - XAU
+                - UR
+                - UP
+                - UI
+                - PYG
+                - PEN
+                - MXN
+                - JPY
+                - GBP
+                - COP
+                - CLP
+                - CHF
+                - CAD
+                - AUD
+                suggestion: Use /parameters/currencies to get all valid currency codes
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
     ExchangeData:
       type: object
@@ -467,96 +560,3 @@ components:
           example: No results found
       required:
       - error
-  parameters:
-    DateParam:
-      name: date
-      in: query
-      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
-      required: false
-      schema:
-        type: string
-        format: date
-        example: '2025-08-09'
-    CurrencyCodeParam:
-      name: code
-      in: path
-      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
-      required: true
-      schema:
-        type: string
-        pattern: ^[A-Z]{3}$
-        example: USD
-      x-parameter-type: currency
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
-  responses:
-    InternalError:
-      description: Error interno del servidor
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    NotFound:
-      description: Recurso no encontrado
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    ValidationError:
-      description: Error de validación de parámetros
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
-          examples:
-            invalid_origin:
-              summary: Casa de cambio inválida
-              value:
-                error: Invalid origin parameter
-                parameter: origin
-                value: invalid_exchange
-                validValues:
-                - la_favorita
-                - cambio_minas
-                - brou
-                - cambio_regul
-                - itau
-                - oca
-                - prex
-                - santander
-                - bcu
-                - cambilex
-                suggestion: Use /parameters/origins to get all valid origins
-            invalid_currency:
-              summary: Moneda inválida
-              value:
-                error: Invalid currency code
-                parameter: code
-                value: INVALID
-                validValues:
-                - USD
-                - EUR
-                - ARS
-                - BRL
-                - XAU
-                - UR
-                - UP
-                - UI
-                - PYG
-                - PEN
-                - MXN
-                - JPY
-                - GBP
-                - COP
-                - CLP
-                - CHF
-                - CAD
-                - AUD
-                suggestion: Use /parameters/currencies to get all valid currency codes

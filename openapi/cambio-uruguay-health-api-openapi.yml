@@ -263,7 +263,31 @@ paths:
       operationId: postCacheFlush
       x-operation-id-source: derived
 components:
+  parameters:
+    DateParam:
+      name: date
+      in: query
+      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2025-08-09'
   schemas:
+    PingResponse:
+      type: object
+      properties:
+        expected:
+          type: boolean
+          description: Si la respuesta es la esperada (>= 100 registros)
+          example: true
+        total:
+          type: number
+          description: Cantidad total de registros devueltos
+          example: 150
+      required:
+      - expected
+      - total
     HealthResponse:
       type: object
       properties:
@@ -317,27 +341,3 @@ components:
       - status
       - message
       - timestamp
-    PingResponse:
-      type: object
-      properties:
-        expected:
-          type: boolean
-          description: Si la respuesta es la esperada (>= 100 registros)
-          example: true
-        total:
-          type: number
-          description: Cantidad total de registros devueltos
-          example: 150
-      required:
-      - expected
-      - total
-  parameters:
-    DateParam:
-      name: date
-      in: query
-      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
-      required: false
-      schema:
-        type: string
-        format: date
-        example: '2025-08-09'
