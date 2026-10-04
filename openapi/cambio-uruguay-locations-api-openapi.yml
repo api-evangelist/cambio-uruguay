@@ -232,48 +232,16 @@ components:
                 - CAD
                 - AUD
                 suggestion: Use /parameters/currencies to get all valid currency codes
-  parameters:
-    LatitudeParam:
-      name: latitude
-      in: query
-      description: Latitud geográfica para calcular distancias
-      required: false
-      schema:
-        type: number
-        format: float
-        minimum: -90
-        maximum: 90
-        example: -34.9173
-    LocationParam:
-      name: location
-      in: path
-      description: Ubicación o departamento. Para obtener valores válidos, consulte /parameters/locations
-      required: true
-      schema:
-        type: string
-        example: Montevideo
-      x-parameter-type: location
-    LongitudeParam:
-      name: longitude
-      in: query
-      description: Longitud geográfica para calcular distancias
-      required: false
-      schema:
-        type: number
-        format: float
-        minimum: -180
-        maximum: 180
-        example: -56.1501
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
     Location:
       type: object
       properties:
@@ -337,12 +305,44 @@ components:
       - error
       - parameter
       - validValues
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error
-          example: No results found
-      required:
-      - error
+  parameters:
+    LocationParam:
+      name: location
+      in: path
+      description: Ubicación o departamento. Para obtener valores válidos, consulte /parameters/locations
+      required: true
+      schema:
+        type: string
+        example: Montevideo
+      x-parameter-type: location
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    LongitudeParam:
+      name: longitude
+      in: query
+      description: Longitud geográfica para calcular distancias
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
+        example: -56.1501
+    LatitudeParam:
+      name: latitude
+      in: query
+      description: Latitud geográfica para calcular distancias
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+        example: -34.9173

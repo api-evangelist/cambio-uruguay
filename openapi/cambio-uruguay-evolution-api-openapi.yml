@@ -264,46 +264,6 @@ paths:
       operationId: getEvolutionByOriginByCodeByType
       x-operation-id-source: derived
 components:
-  parameters:
-    PeriodParam:
-      name: period
-      in: query
-      description: Período en meses para datos históricos (1-60)
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 60
-        default: 6
-        example: 12
-    ExchangeTypeParam:
-      name: type
-      in: path
-      description: Tipo de cambio. Para obtener valores válidos, consulte /parameters/types
-      required: true
-      schema:
-        type: string
-        example: ''
-      x-parameter-type: type
-    CurrencyCodeParam:
-      name: code
-      in: path
-      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
-      required: true
-      schema:
-        type: string
-        pattern: ^[A-Z]{3}$
-        example: USD
-      x-parameter-type: currency
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
   responses:
     ValidationError:
       description: Error de validación de parámetros
@@ -408,3 +368,43 @@ components:
       - error
       - parameter
       - validValues
+  parameters:
+    PeriodParam:
+      name: period
+      in: query
+      description: Período en meses para datos históricos (1-60)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 60
+        default: 6
+        example: 12
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    CurrencyCodeParam:
+      name: code
+      in: path
+      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Z]{3}$
+        example: USD
+      x-parameter-type: currency
+    ExchangeTypeParam:
+      name: type
+      in: path
+      description: Tipo de cambio. Para obtener valores válidos, consulte /parameters/types
+      required: true
+      schema:
+        type: string
+        example: ''
+      x-parameter-type: type

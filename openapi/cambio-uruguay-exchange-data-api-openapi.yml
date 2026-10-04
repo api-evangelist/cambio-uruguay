@@ -393,35 +393,6 @@ paths:
       operationId: getFortex
       x-operation-id-source: derived
 components:
-  parameters:
-    DateParam:
-      name: date
-      in: query
-      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
-      required: false
-      schema:
-        type: string
-        format: date
-        example: '2025-08-09'
-    CurrencyCodeParam:
-      name: code
-      in: path
-      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
-      required: true
-      schema:
-        type: string
-        pattern: ^[A-Z]{3}$
-        example: USD
-      x-parameter-type: currency
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
   responses:
     ValidationError:
       description: Error de validación de parámetros
@@ -474,19 +445,28 @@ components:
                 - CAD
                 - AUD
                 suggestion: Use /parameters/currencies to get all valid currency codes
-    InternalError:
-      description: Error interno del servidor
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
     NotFound:
       description: Recurso no encontrado
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
     ExchangeData:
       type: object
       properties:
@@ -551,12 +531,32 @@ components:
       - error
       - parameter
       - validValues
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error
-          example: No results found
-      required:
-      - error
+  parameters:
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
+    CurrencyCodeParam:
+      name: code
+      in: path
+      description: Código de moneda (ISO 4217). Para obtener valores válidos, consulte /parameters/currencies
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Z]{3}$
+        example: USD
+      x-parameter-type: currency
+    DateParam:
+      name: date
+      in: query
+      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2025-08-09'

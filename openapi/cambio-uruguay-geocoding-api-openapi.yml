@@ -124,15 +124,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Mensaje de error
-          example: No results found
-      required:
-      - error
     GeocodeResponse:
       type: object
       properties:
@@ -162,6 +153,15 @@ components:
       - display_name
       - lat
       - lon
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: No results found
+      required:
+      - error
   responses:
     BadRequest:
       description: Solicitud incorrecta
