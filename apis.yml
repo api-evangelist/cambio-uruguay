@@ -26,7 +26,7 @@ deliveryModel:
 image: https://cambio-uruguay.com/__og-image__/image/og.png
 url: https://raw.githubusercontent.com/api-evangelist/cambio-uruguay/refs/heads/main/apis.yml
 created: '2026-09-07'
-modified: '2026-09-07'
+modified: '2026-10-06'
 specificationVersion: '0.21'
 tags:
 - Currency
@@ -401,6 +401,8 @@ x-source:
   fetched: '2026-09-07'
   note: Every pointer probed before writing; controls discriminate.
 common:
+- url: https://cambio-uruguay.com/blog
+  type: Blog
 - type: Overlay
   url: overlays/cambio-uruguay-openapi-overlay.yaml
 - type: Website
