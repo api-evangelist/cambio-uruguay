@@ -18,3 +18,16 @@ plans:
   limits: none documented (see rate-limits/cambio-uruguay-rate-limits.yml)
   signup_required: false
   note: Applies equally to the REST API, the hosted MCP endpoint, and the npm stdio package.
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  units: []
+  plans:
+  - name: Free public access
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods: []
