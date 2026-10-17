@@ -83,16 +83,6 @@ paths:
       operationId: getBcuByOrigin
       x-operation-id-source: derived
 components:
-  parameters:
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
   schemas:
     ValidationError:
       type: object
@@ -210,3 +200,13 @@ components:
                 - CAD
                 - AUD
                 suggestion: Use /parameters/currencies to get all valid currency codes
+  parameters:
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
