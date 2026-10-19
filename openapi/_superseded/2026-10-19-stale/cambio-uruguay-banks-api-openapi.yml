@@ -1,0 +1,110 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Banks API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Banks
+paths:
+  /banks-news:
+    get:
+      tags:
+      - Banks
+      summary: Novedades y análisis del sector bancario uruguayo (búsqueda con grounding…
+      description: 'Datos que alimentan la sección de novedades de /mejores-bancos-uruguay: una búsqueda con
+
+        grounding (Gemini + Google Search) por banco/fintech uruguayo, más un análisis de sector
+
+        sintetizado SOLO a partir de lo que esa búsqueda encontró. Se sincroniza una vez por día
+
+        (pm2 `currency-banks-news`).
+
+
+        `lang` acepta `es` (default), `en` o `pt`; cualquier otro valor cae a `es`.
+
+
+        `unavailable: true` significa que el briefing para ese idioma todavía no se generó nunca
+
+        (por ejemplo, si el job nunca corrió con GEMINI_API_KEY configurada) — no que la búsqueda
+
+        haya fallado esta vez, en cuyo caso se sigue sirviendo el último briefing bueno guardado.
+
+
+        `headlines[].link` es la URL REAL de la fuente (resuelta a partir del redirect de Google),
+
+        nunca el wrapper `vertexaisearch.cloud.google.com/grounding-api-redirect/...`.'
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - es
+          - en
+          - pt
+          default: es
+        description: Idioma del análisis y los resúmenes. Cualquier otro valor cae a "es".
+      responses:
+        '200':
+          description: Novedades por entidad + análisis de sector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: itau
+                        name:
+                          type: string
+                          example: Itaú
+                        insight:
+                          type:
+                          - string
+                          - 'null'
+                        headlines:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              title:
+                                type: string
+                              source:
+                                type: string
+                                example: elpais.com.uy
+                              link:
+                                type: string
+                                description: URL real de la fuente, nunca el redirect de Google.
+                  analysis:
+                    type:
+                    - string
+                    - 'null'
+                    description: Análisis de sector en Markdown, sintetizado solo de los items.
+                  asOf:
+                    type: string
+                  unavailable:
+                    type: boolean
+                    description: true cuando este idioma todavía no tiene un briefing generado.
+      operationId: getBanksNews
+      x-operation-id-source: derived

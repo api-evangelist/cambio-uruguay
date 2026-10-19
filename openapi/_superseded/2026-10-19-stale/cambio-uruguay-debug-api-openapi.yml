@@ -1,0 +1,132 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Debug API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Debug
+  description: Endpoints de depuración para monitorear el estado interno del servicio
+paths:
+  /debug/sync:
+    get:
+      tags:
+      - Debug
+      summary: Estado detallado de la última sincronización
+      description: 'Retorna información detallada sobre la última sincronización,
+
+        incluyendo resultados por cada origen (casa de cambio),
+
+        tiempos de ejecución y errores individuales.'
+      responses:
+        '200':
+          description: Información de sincronización
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lastSync:
+                    type: string
+                    format: date-time
+                  minutesAgo:
+                    type: number
+                  syncResults:
+                    type: object
+                  syncFileExists:
+                    type: boolean
+      operationId: getDebugSync
+      x-operation-id-source: derived
+  /debug/db:
+    get:
+      tags:
+      - Debug
+      summary: Estado de la conexión a la base de datos
+      description: 'Retorna información sobre la conexión a MongoDB,
+
+        incluyendo estado de la conexión, nombre de la base de datos,
+
+        y conteo de documentos en las colecciones principales.'
+      responses:
+        '200':
+          description: Estado de la base de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connection:
+                    type: object
+                  collections:
+                    type: object
+      operationId: getDebugDb
+      x-operation-id-source: derived
+  /debug/origins:
+    get:
+      tags:
+      - Debug
+      summary: Estado de los orígenes (casas de cambio)
+      description: 'Retorna la lista de todos los orígenes configurados con
+
+        información detallada de cada uno, incluyendo si tienen
+
+        datos actualizados para hoy.'
+      responses:
+        '200':
+          description: Estado de los orígenes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  origins:
+                    type: array
+                    items:
+                      type: object
+      operationId: getDebugOrigins
+      x-operation-id-source: derived
+  /debug/config:
+    get:
+      tags:
+      - Debug
+      summary: Configuración del servidor (sin datos sensibles)
+      description: 'Retorna información sobre la configuración del servidor,
+
+        incluyendo versión de Node.js, tiempo de actividad,
+
+        uso de memoria y zona horaria configurada.'
+      responses:
+        '200':
+          description: Configuración del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodeVersion:
+                    type: string
+                  uptime:
+                    type: number
+                  memory:
+                    type: object
+                  timezone:
+                    type: string
+      operationId: getDebugConfig
+      x-operation-id-source: derived

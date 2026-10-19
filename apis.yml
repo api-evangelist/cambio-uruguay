@@ -392,6 +392,16 @@ apis:
     url: errors/cambio-uruguay-problem-types.yml
   - type: DataModel
     url: data-model/cambio-uruguay-data-model.yml
+- aid: cambio-uruguay:cambio-uruguay-precios-api
+  name: Cambio Uruguay Precios API
+  description: The Precios API from Cambio Uruguay — 5 operation(s) for precios.
+  humanURL: https://github.com/eduair94/cambio-uruguay/tree/main/mcp
+  baseURL: https://mcp.cambio-uruguay.com/mcp
+  tags:
+  - Precios
+  properties:
+  - type: OpenAPI
+    url: openapi/cambio-uruguay-precios-api-openapi.yml
 maintainers:
 - FN: Cambio Uruguay
   email: info@cambio-uruguay.com

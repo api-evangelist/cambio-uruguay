@@ -1,0 +1,437 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Indicators API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Indicators
+paths:
+  /uy-figures:
+    get:
+      tags:
+      - Indicators
+      summary: Indicadores clave de Uruguay (salario mínimo, BPC, boleto, inflación)
+      description: 'Datos que alimentan /salud-financiera, /indicadores y /herramientas/costo-de-vida:
+
+        salario mínimo nacional, BPC, boleto común de Montevideo (STM) e inflación anual (IPC),
+
+        vía una búsqueda con grounding (Gemini + Google Search). Se sincroniza una vez por día
+
+        (pm2 `currency-figures`).
+
+
+        Cada valor debe caer dentro de una banda de plausibilidad para ser aceptado; un valor
+
+        fuera de banda se descarta y se mantiene el último dato bueno (o el baseline verificado).
+
+        `updated[]` lista qué campos vinieron de una búsqueda en vivo en este ciclo — todo lo
+
+        demás es el baseline verificado. `asOf: null` significa que todavía no se generó ningún
+
+        dato en vivo (nunca corrió el job con GEMINI_API_KEY configurada).'
+      responses:
+        '200':
+          description: Indicadores clave de Uruguay
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  salarioMinimo:
+                    type: number
+                    description: UYU/mes, nominal
+                  bpc:
+                    type: number
+                    description: Base de Prestaciones y Contribuciones, UYU
+                  boletoStm:
+                    type: number
+                    description: Boleto común de Montevideo con STM, UYU
+                  inflacionAnual:
+                    type: number
+                    description: Variación anual del IPC, %
+                  asOf:
+                    type:
+                    - string
+                    - 'null'
+                  updated:
+                    type: array
+                    items:
+                      type: string
+                    description: Campos actualizados en vivo en este ciclo.
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        url:
+                          type: string
+      operationId: getUyFigures
+      x-operation-id-source: derived
+  /site-analytics-realtime:
+    get:
+      tags:
+      - Indicators
+      summary: Actividad en vivo del sitio (últimos 30 minutos, GA4 Realtime)
+      description: 'Lo único de /estadisticas-del-sitio que no puede salir de la foto diaria: cuánta gente hay
+
+        ahora, cómo se movió minuto a minuto en la última media hora y qué páginas están abiertas.
+
+        Fuente: Google Analytics 4 Realtime API.
+
+
+        Sólo agregados: un conteo, una forma por minuto y TÍTULOS de página (la API en tiempo real
+
+        no expone rutas, así que ni siquiera existe la posibilidad de filtrar un query string).
+
+        `activeUsers` son usuarios ÚNICOS de los últimos 30 minutos: no es la suma de `perMinute`,
+
+        donde la misma persona aparece en cada minuto en que estuvo activa.
+
+
+        Cacheado 45 s en Redis (compartido por las dos instancias del cluster). Si el servidor no
+
+        tiene GA4 configurado responde todo en cero — nunca un 500.'
+      responses:
+        '200':
+          description: Actividad de los últimos 30 minutos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asOf:
+                    type: string
+                    format: date-time
+                  activeUsers:
+                    type: number
+                    description: Usuarios únicos, últimos 30 min
+                  activeUsersLast5:
+                    type: number
+                    description: Pico por minuto en los últimos 5 min
+                  perMinute:
+                    type: array
+                    description: 30 entradas, de la más vieja a la más nueva.
+                    items:
+                      type: object
+                      properties:
+                        minutesAgo:
+                          type: number
+                        activeUsers:
+                          type: number
+                  pages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        activeUsers:
+                          type: number
+                        views:
+                          type: number
+      operationId: getSiteAnalyticsRealtime
+      x-operation-id-source: derived
+  /cost-of-living:
+    get:
+      tags:
+      - Indicators
+      summary: Figuras en vivo para el costo de vida en Uruguay (salario, boleto, alquileres)
+      description: 'Datos que alimentan /herramientas/costo-de-vida: salario mínimo, boleto común de
+
+        Montevideo (STM) y alquileres típicos (monoambiente, 1 y 2 dormitorios) vía una búsqueda
+
+        con grounding (Gemini + Google Search). Se sincroniza una vez por día (pm2
+
+        `currency-costs`).
+
+
+        Devuelve SOLO las cinco figuras validadas — la app aplica esos valores sobre su propio
+
+        modelo de costos (COST_MODEL), que no vive acá para no duplicar esa tabla. Cada figura
+
+        debe caer dentro de una banda de plausibilidad para ser aceptada; una fuera de banda
+
+        simplemente no aparece en `figures` ni en `updated`. `asOf: null` significa que todavía
+
+        no se generó ningún dato en vivo.'
+      responses:
+        '200':
+          description: Figuras en vivo de costo de vida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  figures:
+                    type: object
+                    properties:
+                      salarioMinimo:
+                        type:
+                        - number
+                        - 'null'
+                      boletoStm:
+                        type:
+                        - number
+                        - 'null'
+                      rentMono:
+                        type:
+                        - number
+                        - 'null'
+                      rent1:
+                        type:
+                        - number
+                        - 'null'
+                      rent2:
+                        type:
+                        - number
+                        - 'null'
+                  asOf:
+                    type:
+                    - string
+                    - 'null'
+                  updated:
+                    type: array
+                    items:
+                      type: string
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        url:
+                          type: string
+      operationId: getCostOfLiving
+      x-operation-id-source: derived
+  /temas-analysis:
+    get:
+      tags:
+      - Indicators
+      summary: Lectura trimestral por IA de los temas de dinero más consultados en Uruguay
+      description: 'Análisis generado con Gemini (grounded) sobre el ranking de temas de dinero de Reddit, regenerado cada 90 días. Solo lee el último snapshot almacenado; nunca gasta una llamada de IA. Devuelve `{ overview: string[], topics: {id,trend,insight}[], sources, asOf }`.'
+      responses:
+        '200':
+          description: Análisis almacenado (o vacío si aún no se generó).
+      operationId: getTemasAnalysis
+      x-operation-id-source: derived
+  /debt-relief:
+    get:
+      tags:
+      - Indicators
+      summary: Topes de usura vigentes del BCU (crédito al consumo)
+      description: 'Datos que alimentan /saldar-deudas-uruguay: los topes de usura que publica el Banco
+
+        Central del Uruguay (Ley 18.212) para crédito al consumo, con y sin autorización de
+
+        descuento, tramo menor a 10.000 UI — vía una búsqueda con grounding (Gemini + Google
+
+        Search). Se sincroniza una vez por mes (pm2 `currency-debt-relief`, día 1).
+
+
+        Devuelve SOLO los topes (`usuryCaps`, índice 0 = con descuento, 1 = sin) — `refiRates` y
+
+        `period` son contenido estático de la página y no viven acá. Cada valor debe caer dentro
+
+        de una banda de plausibilidad para ser aceptado; si nada pasa la banda se sirve el
+
+        último baseline verificado. `asOf: null` significa que todavía no se generó ningún dato
+
+        en vivo.'
+      responses:
+        '200':
+          description: Topes de usura vigentes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usuryCaps:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        segmento:
+                          type: string
+                        tasaMedia:
+                          type: number
+                        topeTasa:
+                          type: number
+                        topeMora:
+                          type: number
+                  asOf:
+                    type:
+                    - string
+                    - 'null'
+                  updated:
+                    type: array
+                    items:
+                      type: string
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        url:
+                          type: string
+      operationId: getDebtRelief
+      x-operation-id-source: derived
+  /bcu-rates:
+    get:
+      tags:
+      - Indicators
+      summary: Tasas medias y topes de usura del BCU (Ley 18.212) para crédito al consumo
+      description: 'La grilla que publica el BCU cada mes (ventana trimestral móvil) para
+
+        Familias > Consumo > SIN autorización de descuento, capital menor a 2:000.000 UI.
+
+        Seis filas: pesos y dólares, por tramo de 10.000 UI y por plazo.
+
+
+        Cada fila trae la tasa media publicada y los dos topes. Los topes se validan contra
+
+        la aritmética de la Ley 18.212 (media x 1,55 y x 1,80) antes de almacenarse, así que
+
+        una lectura mal hecha nunca llega a servirse: se conserva la anterior.
+
+
+        Se refresca a diario (pm2 `currency-bcu-rates`) porque la tabla entra en vigencia el
+
+        día 1 y el comunicado aparece en un día impredecible del mes anterior.'
+      responses:
+        '200':
+          description: Tabla vigente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  periodo:
+                    type: string
+                    example: abril-junio de 2026
+                  vigenteDesde:
+                    type: string
+                    example: '2026-08-01'
+                  asOf:
+                    type:
+                    - string
+                    - 'null'
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bracket:
+                          type: string
+                          enum:
+                          - menor10kUI
+                          - mayor10kUI
+                        cortoPlazo:
+                          type: boolean
+                        currency:
+                          type: string
+                          enum:
+                          - UYU
+                          - USD
+                        media:
+                          type: number
+                          example: 84.47
+                        tope:
+                          type: number
+                          example: 130.9285
+                        topeMora:
+                          type: number
+                          example: 152.046
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        url:
+                          type: string
+      operationId: getBcuRates
+      x-operation-id-source: derived
+  /loan-rates:
+    get:
+      tags:
+      - Indicators
+      summary: Tasas efectivas anuales (TEA) publicadas por prestamistas uruguayos
+      description: 'Datos que alimentan \prestamos-uruguay: la TEA representativa publicada por cada
+
+        prestamista (bancos, financieras, cooperativas, fintech), obtenida por un parser regex
+
+        sobre la propia página del prestamista y, cuando no hay parser o falla, por una búsqueda
+
+        con grounding (Gemini + Google Search) que exige que la cita resuelva al dominio propio
+
+        del prestamista. Se sincroniza una vez por día (pm2 `currency-loans`).
+
+
+        `rates` trae solo el último valor conocido por prestamista; `history` guarda una entrada
+
+        por prestamista y por día — una serie temporal que nunca se trunca ni se regenera. Un
+
+        scrape fallido o implausible nunca borra el último valor bueno.'
+      responses:
+        '200':
+          description: TEAs vigentes por prestamista
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rates:
+                    type: object
+                    description: Por id de prestamista.
+                    additionalProperties:
+                      type: object
+                      properties:
+                        teaPct:
+                          type: number
+                        scrapedAt:
+                          type: string
+                  history:
+                    type: object
+                    description: Por id de prestamista, un array con una entrada por día.
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          date:
+                            type: string
+                          teaPct:
+                            type: number
+                          source:
+                            type: string
+                          method:
+                            type: string
+                            enum:
+                            - regex
+                            - gemini
+                  updatedAt:
+                    type: string
+      operationId: getLoanRates
+      x-operation-id-source: derived

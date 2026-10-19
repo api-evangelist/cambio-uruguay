@@ -5,7 +5,42 @@ info:
   description: '# Cambio Uruguay API
 
 
-    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.
+
+
+    Esta API proporciona:
+
+    - Tipos de cambio actualizados en tiempo real
+
+    - Cotizaciones preferenciales por proveedor, monto e histórico diario
+
+    - Información de ubicaciones de casas de cambio
+
+    - Datos históricos de evolución de monedas
+
+    - Cotizaciones regionales (Argentina, Brasil, Paraguay, Chile y Bolivia) con series diarias
+
+    - Búsqueda por geolocalización
+
+    - Información del Banco Central del Uruguay (BCU)
+
+
+    ## Base URL
+
+
+    **Producción:** `https://api.cambio-uruguay.com`
+
+
+    ## Formatos de respuesta
+
+
+    Todas las respuestas de la API están en formato JSON.
+
+
+    ## Zona horaria
+
+
+    Todos los timestamps y fechas están en la zona horaria de Uruguay (America/Montevideo).'
   contact:
     name: Cambio Uruguay
     url: https://cambio-uruguay.com
@@ -19,6 +54,9 @@ servers:
   description: Servidor de Producción
 - url: http://localhost:3528
   description: Servidor de Desarrollo
+security:
+- {}
+- ApiKeyAuth: []
 tags:
 - name: Evolution
   description: Endpoints para datos históricos y evolución de monedas
@@ -274,6 +312,15 @@ components:
         type: string
         example: ''
       x-parameter-type: type
+    OriginParam:
+      name: origin
+      in: path
+      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
+      required: true
+      schema:
+        type: string
+        example: la_favorita
+      x-parameter-type: origin
     CurrencyCodeParam:
       name: code
       in: path
@@ -284,15 +331,6 @@ components:
         pattern: ^[A-Z]{3}$
         example: USD
       x-parameter-type: currency
-    OriginParam:
-      name: origin
-      in: path
-      description: Casa de cambio. Para obtener valores válidos, consulte /parameters/origins
-      required: true
-      schema:
-        type: string
-        example: la_favorita
-      x-parameter-type: origin
     PeriodParam:
       name: period
       in: query
@@ -408,3 +446,9 @@ components:
       - error
       - parameter
       - validValues
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: 'Opcional. Sin clave la API funciona con el techo anónimo; con clave te identifica, mide tu uso y aplica tu plan. También se acepta `Authorization: Bearer cu_…` o `?api_key=`. Claves en https://cambio-uruguay.com/empresas.'

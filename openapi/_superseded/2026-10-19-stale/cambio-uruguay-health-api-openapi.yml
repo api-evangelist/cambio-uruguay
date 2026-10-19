@@ -1,0 +1,343 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Health API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+tags:
+- name: Health
+  description: Endpoints para verificar el estado del servicio
+paths:
+  /ping:
+    get:
+      tags:
+      - Health
+      summary: Verificar disponibilidad de datos
+      description: 'Endpoint para verificar que la API tiene datos suficientes disponibles.
+
+        Retorna información sobre la cantidad de registros disponibles y
+
+        si cumple con el umbral mínimo esperado (≥100 registros).'
+      parameters:
+      - $ref: '#/components/parameters/DateParam'
+      responses:
+        '200':
+          description: Verificación exitosa con datos suficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+              examples:
+                sufficient_data:
+                  summary: Datos suficientes disponibles
+                  value:
+                    expected: true
+                    total: 150
+        '500':
+          description: Datos insuficientes o error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+              examples:
+                insufficient_data:
+                  summary: Datos insuficientes
+                  value:
+                    expected: false
+                    total: 50
+      operationId: getPing
+      x-operation-id-source: derived
+  /frozen-quotes:
+    get:
+      tags:
+      - Health
+      summary: Pizarras que no cambian de precio
+      description: 'Cotizaciones cuyo precio no se movió en 7 días o más, medido contra su propia historia.
+
+
+        Es la cuarta guarda del pipeline y mira un eje que las otras tres no ven: `rate_plausibility`
+
+        compara compra contra venta por fila, `rate_audit` compara cada casa contra las demás, y el
+
+        estado `stale` de /estado mira la FECHA de la fila. Un origen que publica fila fresca todos
+
+        los días con el mismo número pasa las tres.
+
+
+        Importa porque el daño no es pasivo: el mercado se mueve y la pizarra quieta no, así que
+
+        deriva al extremo de la distribución — y como el sitio ordena por "más barato", la sube al
+
+        titular. Por eso cada fila trae `extreme`, que dice si esa cotización encabeza hoy su grupo.
+
+
+        Lo calcula el job de sync al final de cada corrida y se sirve desde archivo: esta ruta no
+
+        toca la base.'
+      responses:
+        '200':
+          description: Informe de pizarras congeladas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  generatedAt:
+                    type: string
+                    format: date-time
+                  windowDays:
+                    type: number
+                  checked:
+                    type: number
+                  quotes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        origin:
+                          type: string
+                        code:
+                          type: string
+                        type:
+                          type: string
+                        buy:
+                          type:
+                          - number
+                          - 'null'
+                        sell:
+                          type:
+                          - number
+                          - 'null'
+                        daysFrozen:
+                          type: number
+                        capped:
+                          type: boolean
+                          description: la ventana entera está quieta, así que daysFrozen es un piso
+                        lastChangedAt:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        extreme:
+                          type:
+                          - string
+                          - 'null'
+                          enum:
+                          - min-sell
+                          - max-sell
+                          - min-buy
+                          - max-buy
+      operationId: getFrozenQuotes
+      x-operation-id-source: derived
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Verificar estado del servicio
+      description: 'Endpoint de health check que verifica el estado del servicio
+
+        basándose en la última sincronización de datos y la conectividad
+
+        con la base de datos.
+
+
+        Estados posibles:
+
+        - **ok**: Sincronización reciente (≤15 minutos) y DB conectada
+
+        - **degraded**: Sincronización ligeramente retrasada (15-30 min), DB desconectada, o datos de sync inválidos
+
+        - **error**: Sincronización muy antigua (>30 minutos)
+
+
+        Este endpoint solo retorna 500 cuando la sincronización tiene más de 30 minutos de antigüedad.
+
+        Los estados "degraded" retornan 200 para evitar falsos positivos en health checks.'
+      responses:
+        '200':
+          description: Servicio saludable o degradado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                healthy:
+                  summary: Servicio funcionando correctamente
+                  value:
+                    status: ok
+                    message: Sync is recent
+                    timestamp: '2024-08-09T12:00:00.000Z'
+                    uptime: 3600
+                    database:
+                      connected: true
+                      readyState: 1
+                      readyStateText: connected
+                    sync:
+                      available: true
+                      lastSync: '2024-08-09T12:00:00.000Z'
+                      minutesAgo: 5
+                degraded:
+                  summary: Servicio con degradación
+                  value:
+                    status: degraded
+                    message: Database is not connected
+                    timestamp: '2024-08-09T12:00:00.000Z'
+                no_sync_file:
+                  summary: Sin archivo de sincronización
+                  value:
+                    status: ok
+                    message: No sync file found - assuming healthy
+        '500':
+          description: Servicio con problemas graves (sync > 30 min)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                unhealthy:
+                  summary: Sincronización muy antigua
+                  value:
+                    status: error
+                    message: Sync is too old
+                    sync:
+                      available: true
+                      lastSync: '2024-08-09T10:00:00.000Z'
+                      minutesAgo: 120
+      operationId: getHealth
+      x-operation-id-source: derived
+  /cache/status:
+    get:
+      tags:
+      - Health
+      summary: Estado del cache Redis
+      description: Retorna información sobre el estado de la conexión Redis y estadísticas.
+      responses:
+        '200':
+          description: Estado del cache
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                  connected:
+                    type: boolean
+                  latencyMs:
+                    type: number
+      operationId: getCacheStatus
+      x-operation-id-source: derived
+  /cache/flush:
+    post:
+      tags:
+      - Health
+      summary: Limpiar cache Redis
+      description: Limpia todas las entradas del cache Redis.
+      responses:
+        '200':
+          description: Cache limpiado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flushed:
+                    type: boolean
+                  keysDeleted:
+                    type: number
+      operationId: postCacheFlush
+      x-operation-id-source: derived
+components:
+  schemas:
+    PingResponse:
+      type: object
+      properties:
+        expected:
+          type: boolean
+          description: Si la respuesta es la esperada (>= 100 registros)
+          example: true
+        total:
+          type: number
+          description: Cantidad total de registros devueltos
+          example: 150
+      required:
+      - expected
+      - total
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          - degraded
+          - error
+          description: Estado del servicio (ok, degraded, error)
+          example: ok
+        message:
+          type: string
+          description: Mensaje descriptivo del estado
+          example: Sync is recent
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+          example: '2024-08-09T12:00:00.000Z'
+        uptime:
+          type: number
+          description: Tiempo de actividad del servidor en segundos
+          example: 3600
+        database:
+          type: object
+          properties:
+            connected:
+              type: boolean
+              description: Si la base de datos está conectada
+            readyState:
+              type: number
+              description: Estado de la conexión (0=disconnected, 1=connected, 2=connecting, 3=disconnecting)
+            readyStateText:
+              type: string
+              description: Descripción del estado de conexión
+        sync:
+          type: object
+          properties:
+            available:
+              type: boolean
+              description: Si hay información de sincronización disponible
+            lastSync:
+              type: string
+              format: date-time
+              description: Última sincronización exitosa
+            minutesAgo:
+              type: number
+              description: Minutos desde la última sincronización
+      required:
+      - status
+      - message
+      - timestamp
+  parameters:
+    DateParam:
+      name: date
+      in: query
+      description: Fecha en formato YYYY-MM-DD (zona horaria de Uruguay)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2025-08-09'

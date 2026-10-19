@@ -1,0 +1,224 @@
+openapi: 3.2.0
+info:
+  title: Cambio Uruguay Precios API
+  version: 1.0.0
+  description: '# Cambio Uruguay API
+
+
+    API completa para obtener tipos de cambio y información de casas de cambio en Uruguay.
+
+
+    Esta API proporciona:
+
+    - Tipos de cambio actualizados en tiempo real
+
+    - Cotizaciones preferenciales por proveedor, monto e histórico diario
+
+    - Información de ubicaciones de casas de cambio
+
+    - Datos históricos de evolución de monedas
+
+    - Cotizaciones regionales (Argentina, Brasil, Paraguay, Chile y Bolivia) con series diarias
+
+    - Búsqueda por geolocalización
+
+    - Información del Banco Central del Uruguay (BCU)
+
+
+    ## Base URL
+
+
+    **Producción:** `https://api.cambio-uruguay.com`
+
+
+    ## Formatos de respuesta
+
+
+    Todas las respuestas de la API están en formato JSON.
+
+
+    ## Zona horaria
+
+
+    Todos los timestamps y fechas están en la zona horaria de Uruguay (America/Montevideo).'
+  contact:
+    name: Cambio Uruguay
+    url: https://cambio-uruguay.com
+    email: info@cambio-uruguay.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://cambio-uruguay.com/terminos
+servers:
+- url: https://api.cambio-uruguay.com
+  description: Servidor de Producción
+- url: http://localhost:3528
+  description: Servidor de Desarrollo
+security:
+- {}
+- ApiKeyAuth: []
+tags:
+- name: Precios
+paths:
+  /precios/articles:
+    get:
+      tags:
+      - Precios
+      summary: Catalogo de articulos del SIPC con las estadisticas del dia
+      description: 'Los precios son los del SIPC (Sistema de Informacion de Precios al
+
+        Consumidor, MEF / Area Defensa del Consumidor), la fuente oficial:
+
+        `precios.gub.uy` responde 301 hacia `www.precios.uy`.
+
+
+        Lo que agrega esta API es el HISTORICO, que el origen no guarda: su
+
+        API devuelve solo el precio de hoy con su fecha y no tiene endpoint de
+
+        serie.'
+      responses:
+        '200':
+          description: Catalogo con minimo, mediana y maximo nacional por articulo
+      operationId: getPreciosArticles
+      x-operation-id-source: derived
+  /precios/article/{id}:
+    get:
+      tags:
+      - Precios
+      summary: Precio de un articulo local por local, con su antiguedad
+      description: 'Cada fila trae la FECHA que declara el origen. El 94 % son del dia o
+
+        del anterior, pero hay gondolas que no se actualizan desde hace
+
+        semanas, asi que `freshness` viene en cada fila y **`cheapest` nunca
+
+        es una fila `stale` ni una marcada `suspect`** - ordenar por precio a
+
+        secas sube al titular la gondola mas vieja o el error de carga.
+
+
+        `promo: true` significa que el origen declaro la celda como
+
+        `oferta - $N`: es 1 de cada 10 filas y es lo que se paga hoy, asi que
+
+        si puede encabezar.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Filas por local, estadisticas del dia y serie propia
+      operationId: getPreciosArticleById
+      x-operation-id-source: derived
+  /precios/basket:
+    get:
+      tags:
+      - Precios
+      summary: Canasta propia, nivel de precios por departamento y por cadena
+      description: 'La canasta esta PINNEADA y versionada, y se calcula solo con
+
+        observaciones reales.
+
+
+        El orden es por canasta EMPAREJADA (`ratio`): lo que el local cobra
+
+        por los articulos que declara, contra la mediana nacional de esos
+
+        mismos articulos. No por el total, porque el total baja cuando al
+
+        local le FALTAN articulos y no cuando es barato - medido, la
+
+        correlacion entre cobertura y total crudo es 0,842 y de los diez mas
+
+        baratos por total solo uno sigue estando entre los diez mas baratos
+
+        por canasta emparejada.
+
+
+        Un local con menos del 70 % de la canasta no se rankea, y un
+
+        departamento o cadena con menos de 5 locales calificados tampoco:
+
+        dice `qualified: false`. No se publica ningun total completado.
+
+
+        `cheapestStores` son los 25 locales mas baratos del pais;
+
+        `rankedStores` son TODOS los calificados en el mismo orden, con
+
+        departamento, cadena y direccion, para filtrar por departamento.'
+      responses:
+        '200':
+          description: Canasta del ultimo dia, con ambitos y veredictos de gondola
+      operationId: getPreciosBasket
+      x-operation-id-source: derived
+  /precios/stores:
+    get:
+      tags:
+      - Precios
+      summary: Locales que declaran precios, dentro de un radio
+      description: 'Los 18 locales del catalogo que no traen coordenada NO pueden entrar
+
+        en una consulta por radio: sin coordenada no hay distancia.'
+      parameters:
+      - name: near
+        in: query
+        required: true
+        schema:
+          type: string
+          example: -34.9011,-56.1645
+      - name: r
+        in: query
+        schema:
+          type: number
+          default: 5
+      responses:
+        '200':
+          description: Locales ordenados por distancia
+      operationId: getPreciosStores
+      x-operation-id-source: derived
+  /precios/changes:
+    get:
+      tags:
+      - Precios
+      summary: Cada cambio de precio, sin umbral minimo
+      description: 'Es la mitad irreconstruible del archivo: la fila diaria se sobrescribe,
+
+        asi que un movimiento solo existe si se escribio cuando paso. Se
+
+        registra toda diferencia contra la lectura anterior, por chica que sea.'
+      parameters:
+      - name: articleId
+        in: query
+        schema:
+          type: integer
+      - name: storeId
+        in: query
+        schema:
+          type: integer
+      - name: day
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 500
+      responses:
+        '200':
+          description: Movimientos de precio, del mas reciente al mas viejo
+      operationId: getPreciosChanges
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: 'Opcional. Sin clave la API funciona con el techo anónimo; con clave te identifica, mide tu uso y aplica tu plan. También se acepta `Authorization: Bearer cu_…` o `?api_key=`. Claves en https://cambio-uruguay.com/empresas.'
