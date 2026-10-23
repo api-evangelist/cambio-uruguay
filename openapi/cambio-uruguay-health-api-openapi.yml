@@ -400,3 +400,9 @@ components:
       in: header
       name: X-API-Key
       description: 'Opcional. Sin clave la API funciona con el techo anónimo; con clave te identifica, mide tu uso y aplica tu plan. También se acepta `Authorization: Bearer cu_…` o `?api_key=`. Claves en https://cambio-uruguay.com/empresas.'
+x-provenance:
+  method: harvested
+  publisher: Cambio Uruguay
+  source: https://api.cambio-uruguay.com/api-docs.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
