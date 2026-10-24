@@ -106,6 +106,8 @@ apis:
   humanURL: https://api.cambio-uruguay.com/api-docs
   baseURL: https://api.cambio-uruguay.com
   tags:
+  - AI-Insights
+  tags_raw:
   - AI Insights
   properties:
   - type: OpenAPI
